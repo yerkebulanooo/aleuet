@@ -1,6 +1,9 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { useParams, notFound } from "next/navigation";
+import { usePublishedContent } from "@/lib/content";
 import { Clock, Sparkles, ArrowRight } from "lucide-react";
 import { materials } from "@/data/materials";
 import { topics } from "@/data/topics";
@@ -13,20 +16,22 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { formatMinutes } from "@/lib/utils";
 
-interface PageProps {
-  params: Promise<{ slug: string }>;
-}
+export default function MaterialDetailPage() {
+  const params = useParams<{ slug: string }>();
+  const slug = params.slug;
+  const { items: visibleMaterials, ready: materialsReady } = usePublishedContent("materials", materials);
+  const { items: visibleEvents } = usePublishedContent("events", events);
+  const material = visibleMaterials.find((m) => m.slug === slug);
 
-export default async function MaterialDetailPage({ params }: PageProps) {
-  const { slug } = await params;
-  const material = materials.find((m) => m.slug === slug);
-
-  if (!material) notFound();
+  if (!material) {
+    if (!materialsReady) return <div className="p-12 text-center">Жүктелуде…</div>;
+    notFound();
+  }
 
   const topic = topics.find((t) => t.id === material.topicId);
-  const nextMat = material.nextMaterialSlug ? materials.find((m) => m.slug === material.nextMaterialSlug) : null;
+  const nextMat = material.nextMaterialSlug ? visibleMaterials.find((m) => m.slug === material.nextMaterialSlug) : null;
   const relProd = material.relatedProductSlug ? products[material.relatedProductSlug] : null;
-  const relEvent = material.relatedEventSlug ? events.find((e) => e.slug === material.relatedEventSlug) : null;
+  const relEvent = material.relatedEventSlug ? visibleEvents.find((e) => e.slug === material.relatedEventSlug) : null;
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-6 sm:py-10 md:px-8">

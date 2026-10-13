@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { MapPin, Users, ArrowRight, Sparkles } from "lucide-react";
 import { events } from "@/data/events";
+import { usePublishedContent } from "@/lib/content";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { useLanguage } from "@/providers/language-provider";
@@ -10,9 +11,10 @@ import { useLanguage } from "@/providers/language-provider";
 export default function EventsPage() {
   const { t } = useLanguage();
   const d = t.pages.events;
+  const { items: visibleEvents } = usePublishedContent("events", events);
   const [filter, setFilter] = useState("all");
 
-  const filteredEvents = events.filter((e) => {
+  const filteredEvents = visibleEvents.filter((e) => {
     if (filter === "workshop") return e.type === "workshop";
     if (filter === "webinar") return e.type === "webinar";
     if (filter === "offline") return !e.isOnline;

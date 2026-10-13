@@ -46,7 +46,43 @@ service cloud.firestore {
       allow delete: if signedIn() && request.auth.uid == uid;
     }
 
-    // Deny all collections until their access model is explicitly designed.
+    function validPublication(resourceId) {
+      return request.resource.data.publicationStatus in ['draft', 'published']
+        && request.resource.data.title is string
+        && request.resource.data.title.size() <= 180
+        && request.resource.data.slug == resourceId;
+    }
+
+    match /contentMeta/{collectionName} {
+      allow get: if collectionName in ['materials', 'events'];
+      allow list: if false;
+      allow create, update: if isAdmin()
+        && collectionName in ['materials', 'events']
+        && request.resource.data.initialized == true;
+      allow delete: if isAdmin() && collectionName in ['materials', 'events'];
+    }
+
+    match /materials/{resourceId} {
+      allow get: if isAdmin() || resource.data.publicationStatus == 'published';
+      allow list: if isAdmin() || resource.data.publicationStatus == 'published';
+      allow create: if isAdmin() && request.resource.data.publicationStatus in ['draft', 'published']
+        && request.resource.data.title is string && request.resource.data.title.size() <= 180
+        && request.resource.data.slug == resourceId;
+      allow update: if isAdmin() && validPublication(resourceId);
+      allow delete: if isAdmin();
+    }
+
+    match /events/{resourceId} {
+      allow get: if isAdmin() || resource.data.publicationStatus == 'published';
+      allow list: if isAdmin() || resource.data.publicationStatus == 'published';
+      allow create: if isAdmin() && request.resource.data.publicationStatus in ['draft', 'published']
+        && request.resource.data.title is string && request.resource.data.title.size() <= 180
+        && request.resource.data.slug == resourceId;
+      allow update: if isAdmin() && validPublication(resourceId);
+      allow delete: if isAdmin();
+    }
+
+    // Deny all other collections until their access model is explicitly designed.
     match /{document=**} {
       allow read, write: if false;
     }

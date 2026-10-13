@@ -6,6 +6,7 @@ import { useParams, notFound } from "next/navigation";
 import { Calendar, Clock, MapPin, ArrowRight, ArrowLeft } from "lucide-react";
 import { events } from "@/data/events";
 import { materials } from "@/data/materials";
+import { usePublishedContent } from "@/lib/content";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { EventRegistrationModal } from "@/components/events/EventRegistrationModal";
@@ -13,14 +14,19 @@ import { EventRegistrationModal } from "@/components/events/EventRegistrationMod
 export default function EventDetailPage() {
   const params = useParams();
   const slug = params?.slug as string;
-  const event = events.find((e) => e.slug === slug);
+  const { items: visibleEvents, ready: eventsReady } = usePublishedContent("events", events);
+  const { items: visibleMaterials } = usePublishedContent("materials", materials);
+  const event = visibleEvents.find((e) => e.slug === slug);
 
   const [isOpen, setIsOpen] = useState(false);
 
-  if (!event) notFound();
+  if (!event) {
+    if (!eventsReady) return <div className="p-12 text-center">Жүктелуде…</div>;
+    notFound();
+  }
 
   const prepMaterials = event.relatedMaterialSlugs
-    ? materials.filter((m) => event.relatedMaterialSlugs?.includes(m.slug))
+    ? visibleMaterials.filter((m) => event.relatedMaterialSlugs?.includes(m.slug))
     : [];
 
   return (

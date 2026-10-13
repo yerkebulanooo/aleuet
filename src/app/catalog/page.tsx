@@ -4,6 +4,7 @@ import React, { useState, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Search, RotateCcw, Filter, Sparkles, BookOpen } from "lucide-react";
 import { materials } from "@/data/materials";
+import { usePublishedContent } from "@/lib/content";
 import { topics } from "@/data/topics";
 import { MaterialCard } from "@/components/materials/MaterialCard";
 import { Input } from "@/components/ui/Input";
@@ -14,6 +15,7 @@ import { useLanguage } from "@/providers/language-provider";
 function CatalogContent() {
   const { t, locale } = useLanguage();
   const d = t.pages.catalog;
+  const { items: visibleMaterials } = usePublishedContent("materials", materials);
   const searchParams = useSearchParams();
   const initialTopic = searchParams.get("topic") || "all";
 
@@ -23,16 +25,16 @@ function CatalogContent() {
   const [status, setStatus] = useState("all");
 
   const topicTabs = [
-    { id: "all", label: d.allTopics, count: materials.length },
+    { id: "all", label: d.allTopics, count: visibleMaterials.length },
     ...topics.map((t) => ({
       id: t.id,
       label: (locale === "kk" ? t.titleKk : locale === "ru" ? t.titleRu : t.titleEn) || t.title,
-      count: materials.filter((m) => m.topicId === t.id).length,
+      count: visibleMaterials.filter((m) => m.topicId === t.id).length,
     })),
   ];
 
   const filtered = useMemo(() => {
-    return materials.filter((m) => {
+    return visibleMaterials.filter((m) => {
       if (query.trim()) {
         const q = query.toLowerCase();
         if (!m.title.toLowerCase().includes(q) && !m.subtitle.toLowerCase().includes(q) && !m.author.name.toLowerCase().includes(q)) return false;
@@ -42,7 +44,7 @@ function CatalogContent() {
       if (status !== "all" && m.status !== status) return false;
       return true;
     });
-  }, [query, topic, level, status]);
+  }, [query, topic, level, status, visibleMaterials]);
 
   const reset = () => {
     setQuery("");
