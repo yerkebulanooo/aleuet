@@ -20,6 +20,7 @@ import {
   updateProfile,
   type User,
 } from "firebase/auth";
+import { doc, runTransaction, serverTimestamp } from "firebase/firestore";
 import { getFirebaseClient, isFirebaseConfigured } from "@/lib/firebase/client";
 
 interface AuthContextValue {
@@ -28,6 +29,7 @@ interface AuthContextValue {
   configured: boolean;
   redirectErrorCode: string | null;
   clearRedirectError: () => void;
+  profileSetupError: string | null;
   signUp: (name: string, email: string, password: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
@@ -41,6 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(isFirebaseConfigured);
   const [redirectErrorCode, setRedirectErrorCode] = useState<string | null>(null);
+  const [profileSetupError, setProfileSetupError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isFirebaseConfigured) return;
@@ -49,6 +52,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, (nextUser) => {
       setUser(nextUser);
       setLoading(false);
+      setProfileSetupError(null);
+      if (nextUser) {
+        const { db } = getFirebaseClient();
+        const profileRef = doc(db, "users", nextUser.uid);
+        void runTransaction(db, async (transaction) => {
+          const profile = await transaction.get(profileRef);
+          if (!profile.exists()) {
+            transaction.set(profileRef, {
+              displayName: nextUser.displayName ?? "",
+              email: nextUser.email ?? "",
+              photoURL: nextUser.photoURL ?? "",
+              grade: "",
+              city: "",
+              locale: "kk",
+              createdAt: serverTimestamp(),
+              updatedAt: serverTimestamp(),
+            });
+          }
+        }).catch((reason: unknown) => {
+          const code = typeof reason === "object" && reason && "code" in reason
+            ? String(reason.code)
+            : "unknown";
+          setProfileSetupError(code);
+        });
+      }
     });
     void getRedirectResult(auth).catch((reason: unknown) => {
       if (typeof reason === "object" && reason && "code" in reason) {
@@ -94,7 +122,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, configured: isFirebaseConfigured, redirectErrorCode, clearRedirectError, signUp, signIn, signInWithGoogle, linkGoogleAccount, logOut }}>
+    <AuthContext.Provider value={{ user, loading, configured: isFirebaseConfigured, redirectErrorCode, clearRedirectError, profileSetupError, signUp, signIn, signInWithGoogle, linkGoogleAccount, logOut }}>
       {children}
     </AuthContext.Provider>
   );
