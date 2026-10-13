@@ -17,6 +17,12 @@ function getAuthError(code: AuthErrorCode, locale: string) {
       "auth/invalid-email": "Email мекенжайын тексеріңіз.",
       "auth/weak-password": "Құпиясөз кемінде 6 таңбадан тұруы керек.",
       "auth/popup-closed-by-user": "Google арқылы кіру терезесі жабылды.",
+      "auth/unauthorized-domain": "Бұл сайт Firebase-та Google арқылы кіруге рұқсат етілмеген. Firebase Authentication → Settings → Authorized domains бөлімінде доменді қосыңыз.",
+      "auth/operation-not-allowed": "Firebase Console ішінде Google провайдерін қосыңыз.",
+      "auth/popup-blocked": "Браузер кіру терезесін бұғаттады. Қалқымалы терезелерге рұқсат беріп, қайта көріңіз.",
+      "auth/cancelled-popup-request": "Google арқылы кіру терезесі ауыстырылды. Қайта көріңіз.",
+      "auth/account-exists-with-different-credential": "Бұл email пароль арқылы тіркелген. Email мен құпиясөзбен кіріп, Профиль → Баптаулар бөлімінде Google аккаунтын байланыстырыңыз.",
+      "auth/network-request-failed": "Желі қатесі. Интернет байланысын тексеріңіз.",
       default: "Кіру мүмкін болмады. Деректерді тексеріп, қайта көріңіз.",
     },
     ru: {
@@ -25,6 +31,12 @@ function getAuthError(code: AuthErrorCode, locale: string) {
       "auth/invalid-email": "Проверьте адрес электронной почты.",
       "auth/weak-password": "Пароль должен содержать не менее 6 символов.",
       "auth/popup-closed-by-user": "Окно входа через Google было закрыто.",
+      "auth/unauthorized-domain": "Этот домен не разрешён для входа через Google. Добавьте его в Firebase Authentication → Settings → Authorized domains.",
+      "auth/operation-not-allowed": "Включите провайдер Google в Firebase Console.",
+      "auth/popup-blocked": "Браузер заблокировал окно входа. Разрешите всплывающие окна и попробуйте снова.",
+      "auth/cancelled-popup-request": "Запрос входа через Google был заменён. Попробуйте ещё раз.",
+      "auth/account-exists-with-different-credential": "Этот email уже зарегистрирован по паролю. Войдите по email и паролю, затем откройте Профиль → Настройки и подключите Google.",
+      "auth/network-request-failed": "Ошибка сети. Проверьте подключение к интернету.",
       default: "Не удалось выполнить вход. Проверьте данные и попробуйте ещё раз.",
     },
     en: {
@@ -33,11 +45,19 @@ function getAuthError(code: AuthErrorCode, locale: string) {
       "auth/invalid-email": "Check the email address and try again.",
       "auth/weak-password": "Your password must be at least 6 characters.",
       "auth/popup-closed-by-user": "The Google sign-in window was closed.",
+      "auth/unauthorized-domain": "This domain is not authorized for Google sign-in. Add it under Firebase Authentication → Settings → Authorized domains.",
+      "auth/operation-not-allowed": "Enable the Google provider in Firebase Console.",
+      "auth/popup-blocked": "Your browser blocked the sign-in window. Allow pop-ups and try again.",
+      "auth/cancelled-popup-request": "The Google sign-in request was replaced. Please try again.",
+      "auth/account-exists-with-different-credential": "This email already uses a password. Sign in with email and password, then open Profile → Settings to link Google.",
+      "auth/network-request-failed": "Network error. Check your internet connection.",
       default: "Sign-in failed. Check your details and try again.",
     },
   };
   const dictionary = messages[locale as keyof typeof messages] ?? messages.kk;
-  return dictionary[code as keyof typeof dictionary] ?? dictionary.default;
+  return dictionary[code as keyof typeof dictionary] ?? (code
+    ? `${dictionary.default} (${code})`
+    : dictionary.default);
 }
 
 export default function LoginPage() {

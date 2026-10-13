@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn() && request.auth.token.role == 'admin';
+    }
+
+    function validUserProfile() {
+      return request.resource.data.keys().hasOnly([
+          'displayName', 'email', 'photoURL', 'grade', 'city', 'locale', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.keys().hasAll([
+          'displayName', 'email', 'photoURL', 'grade', 'city', 'locale', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() <= 60
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.photoURL is string
+        && request.resource.data.photoURL.size() <= 2048
+        && request.resource.data.grade is string
+        && request.resource.data.grade.size() <= 60
+        && request.resource.data.city is string
+        && request.resource.data.city.size() <= 80
+        && request.resource.data.locale in ['kk', 'ru', 'en']
+        && request.resource.data.updatedAt == request.time;
+    }
+
+    match /users/{uid} {
+      allow get: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow list: if isAdmin();
+
+      allow create: if signedIn()
+        && request.auth.uid == uid
+        && validUserProfile()
+        && request.resource.data.createdAt == request.time;
+
+      allow update: if signedIn()
+        && request.auth.uid == uid
+        && validUserProfile()
+        && request.resource.data.createdAt == resource.data.createdAt;
+
+      allow delete: if signedIn() && request.auth.uid == uid;
+    }
+
+    // Deny all collections until their access model is explicitly designed.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

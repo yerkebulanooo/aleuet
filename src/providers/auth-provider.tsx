@@ -12,6 +12,7 @@ import {
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
   onAuthStateChanged,
+  linkWithPopup,
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
@@ -27,6 +28,7 @@ interface AuthContextValue {
   signUp: (name: string, email: string, password: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
+  linkGoogleAccount: () => Promise<void>;
   logOut: () => Promise<void>;
 }
 
@@ -56,7 +58,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signInWithGoogle = useCallback(async () => {
-    await signInWithPopup(getFirebaseClient().auth, new GoogleAuthProvider());
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+    await signInWithPopup(getFirebaseClient().auth, provider);
+  }, []);
+
+  const linkGoogleAccount = useCallback(async () => {
+    const currentUser = getFirebaseClient().auth.currentUser;
+    if (!currentUser) throw new Error("Sign in before linking Google.");
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+    await linkWithPopup(currentUser, provider);
   }, []);
 
   const logOut = useCallback(async () => {
@@ -64,7 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, configured: isFirebaseConfigured, signUp, signIn, signInWithGoogle, logOut }}>
+    <AuthContext.Provider value={{ user, loading, configured: isFirebaseConfigured, signUp, signIn, signInWithGoogle, linkGoogleAccount, logOut }}>
       {children}
     </AuthContext.Provider>
   );

@@ -69,7 +69,9 @@ export function Header() {
             href="/profile"
             className="flex items-center gap-2 rounded-full border border-[#d8dacb] dark:border-[#2e3528] bg-white dark:bg-[#191c16] px-3 py-1.5 text-xs font-bold"
           >
-            {isDemoMode ? (
+            {authUser ? (
+              <span className="max-w-36 truncate text-[11px] font-bold text-[#555a4e] dark:text-[#9ea594]">{authUser.displayName || authUser.email}</span>
+            ) : isDemoMode ? (
               <>
                 <span className="flex items-center gap-1 text-[#d96500] dark:text-[#ffbe7a]">
                   <Flame className="h-3.5 w-3.5 fill-current" />
