@@ -3,17 +3,19 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Flame, Sparkles, Menu, X, BookOpen, Compass, Calendar, User, Info } from "lucide-react";
+import { Flame, Sparkles, Menu, X, BookOpen, Compass, Calendar, User, Info, LogIn } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/language-provider";
 import { getUserProfile } from "@/data/user";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ThemeSwitcher } from "./ThemeSwitcher";
+import { useAuth } from "@/providers/auth-provider";
 
 export function Header() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
-  const { t, isDemoMode } = useLanguage();
+  const { t, isDemoMode, locale } = useLanguage();
+  const { user: authUser, loading: authLoading } = useAuth();
   const user = getUserProfile(isDemoMode);
 
   const navLinks = [
@@ -22,6 +24,9 @@ export function Header() {
     { href: "/events", label: t.nav.events, icon: <Calendar className="h-4 w-4" /> },
     { href: "/about", label: t.nav.about, icon: <Info className="h-4 w-4" /> },
     { href: "/profile", label: t.nav.profile, icon: <User className="h-4 w-4" /> },
+    ...(!authLoading && !authUser
+      ? [{ href: "/login", label: locale === "kk" ? "Кіру" : locale === "ru" ? "Войти" : "Sign in", icon: <LogIn className="h-4 w-4" /> }]
+      : []),
   ];
 
   return (
@@ -114,4 +119,3 @@ export function Header() {
     </header>
   );
 }
-
