@@ -13,15 +13,12 @@ Firebase Authentication is enabled with Email/Password and Google. The `aleuet.v
 production domain is authorized for OAuth redirects. Cloud Firestore's default database is in
 `europe-west3` (Frankfurt). `firestore.rules` allows a signed-in user to access only their own
 profile document and prevents profile writes from adding role fields. Other collections remain
-closed. The rules file is present locally but is **not deployed yet**: the Firebase CLI rejected
-the current local OAuth credentials with HTTP 401 before it could compile or publish the rules.
-The project remains on the Spark (no-cost) plan.
+closed. These rules were compiled and successfully deployed to Cloud Firestore after refreshing
+Firebase CLI authentication. The project remains on the Spark (no-cost) plan.
 
 ## Enable only the services you plan to use
 
-- Sign in to Firebase CLI with the Google account that manages the project, then deploy the
-  checked-in Firestore rules from the project root:
-  `firebase login --reauth`
+- To redeploy a future change to Firestore rules, run from the project root:
   `firebase deploy --only firestore:rules --project aleuet-32228`.
 - If Google login still fails after deployment, use the visible Firebase error code on the login
   page. Check Firebase Authentication → Settings → Authorized domains and Google provider status.
