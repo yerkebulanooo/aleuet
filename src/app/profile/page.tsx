@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BadgeCheck, LoaderCircle, LogOut, Save, UserRound, Link2 } from "lucide-react";
 import { doc, getDoc, onSnapshot, serverTimestamp, setDoc } from "firebase/firestore";
-import { updateProfile } from "firebase/auth";
+import { getIdTokenResult, updateProfile } from "firebase/auth";
 import { useAuth } from "@/providers/auth-provider";
 import { useLanguage } from "@/providers/language-provider";
 import { getFirebaseClient } from "@/lib/firebase/client";
@@ -38,7 +38,19 @@ export default function ProfilePage() {
   const [profileLoading, setProfileLoading] = useState(true);
   const [googleBusy, setGoogleBusy] = useState(false);
   const [googleLinkedForUid, setGoogleLinkedForUid] = useState<string | null>(null);
+  const [adminUid, setAdminUid] = useState<string | null>(null);
   const googleLinked = Boolean(user?.providerData.some((provider) => provider.providerId === "google.com") || (user && googleLinkedForUid === user.uid));
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    getIdTokenResult(user, true).then((token) => {
+      if (!cancelled) setAdminUid(token.claims.role === "admin" ? user.uid : null);
+    }).catch(() => {
+      if (!cancelled) setAdminUid(null);
+    });
+    return () => { cancelled = true; };
+  }, [user]);
 
   useEffect(() => {
     if (!user) {
@@ -142,7 +154,7 @@ export default function ProfilePage() {
           <Button type="submit" disabled={busy} className="w-full">{busy ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <Save className="h-4 w-4"/>}{busy ? copy.saving : copy.save}</Button>
         </form></div>}
         {(tab === "achievements" || tab === "works") && <div className="rounded-2xl border border-[#e2e4d8] bg-white p-6 text-sm text-[#5c6055] dark:border-[#2e3528] dark:bg-[#191c16] dark:text-[#9ea594]">{copy.empty}</div>}
-        {tab === "settings" && <div className="space-y-4 rounded-2xl border border-[#e2e4d8] bg-white p-5 text-sm dark:border-[#2e3528] dark:bg-[#191c16]"><div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e2e4d8] pb-3 dark:border-[#2e3528]"><span>{copy.lang}</span><LanguageSwitcher /></div><div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e2e4d8] pb-3 dark:border-[#2e3528]"><span>{copy.theme}</span><ThemeSwitcher /></div><p className="text-[#5c6055] dark:text-[#9ea594]">{copy.settings}</p><button disabled={googleBusy || googleLinked} onClick={connectGoogle} className="flex items-center gap-2 rounded-full border border-[#d8dacb] px-4 py-2 font-bold disabled:opacity-60 dark:border-[#394131]"><Link2 className="h-4 w-4"/>{googleBusy ? t.common.loading : googleLinked ? copy.googleLinked : copy.googleLink}</button>{error && <p role="alert" className="text-sm text-[#a3241b]">{error}</p>}<Link href="/admin" className="text-xs font-bold text-[#4d6300] underline dark:text-[#d8f06a]">{copy.admin}</Link><button onClick={signOut} className="flex items-center gap-2 rounded-full border border-[#d8dacb] px-4 py-2 font-bold dark:border-[#394131]"><LogOut className="h-4 w-4"/>{copy.logout}</button></div>}
+        {tab === "settings" && <div className="space-y-4 rounded-2xl border border-[#e2e4d8] bg-white p-5 text-sm dark:border-[#2e3528] dark:bg-[#191c16]"><div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e2e4d8] pb-3 dark:border-[#2e3528]"><span>{copy.lang}</span><LanguageSwitcher /></div><div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e2e4d8] pb-3 dark:border-[#2e3528]"><span>{copy.theme}</span><ThemeSwitcher /></div><p className="text-[#5c6055] dark:text-[#9ea594]">{copy.settings}</p><button disabled={googleBusy || googleLinked} onClick={connectGoogle} className="flex items-center gap-2 rounded-full border border-[#d8dacb] px-4 py-2 font-bold disabled:opacity-60 dark:border-[#394131]"><Link2 className="h-4 w-4"/>{googleBusy ? t.common.loading : googleLinked ? copy.googleLinked : copy.googleLink}</button>{error && <p role="alert" className="text-sm text-[#a3241b]">{error}</p>}{adminUid === user.uid && <Link href="/admin" className="inline-flex rounded-full bg-[#d8f06a] px-4 py-2 font-bold text-[#171914]">{copy.admin}</Link>}<button onClick={signOut} className="flex items-center gap-2 rounded-full border border-[#d8dacb] px-4 py-2 font-bold dark:border-[#394131]"><LogOut className="h-4 w-4"/>{copy.logout}</button></div>}
       </div>
     </div>
   );
