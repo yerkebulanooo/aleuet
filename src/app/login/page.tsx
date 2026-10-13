@@ -23,6 +23,8 @@ function getAuthError(code: AuthErrorCode, locale: string) {
       "auth/cancelled-popup-request": "Google арқылы кіру терезесі ауыстырылды. Қайта көріңіз.",
       "auth/account-exists-with-different-credential": "Бұл email пароль арқылы тіркелген. Email мен құпиясөзбен кіріп, Профиль → Баптаулар бөлімінде Google аккаунтын байланыстырыңыз.",
       "auth/network-request-failed": "Желі қатесі. Интернет байланысын тексеріңіз.",
+      "auth/web-storage-unsupported": "Браузердің қауіпсіз кіру сақтау орны қолжетімсіз. Басқа браузерді пайдаланып көріңіз.",
+      "auth/operation-not-supported-in-this-environment": "Бұл браузер Google арқылы кіруді қолдамайды. Chrome немесе Safari-дің соңғы нұсқасын қолданып көріңіз.",
       default: "Кіру мүмкін болмады. Деректерді тексеріп, қайта көріңіз.",
     },
     ru: {
@@ -37,6 +39,8 @@ function getAuthError(code: AuthErrorCode, locale: string) {
       "auth/cancelled-popup-request": "Запрос входа через Google был заменён. Попробуйте ещё раз.",
       "auth/account-exists-with-different-credential": "Этот email уже зарегистрирован по паролю. Войдите по email и паролю, затем откройте Профиль → Настройки и подключите Google.",
       "auth/network-request-failed": "Ошибка сети. Проверьте подключение к интернету.",
+      "auth/web-storage-unsupported": "Браузер заблокировал хранилище, необходимое для входа. Попробуйте другой браузер.",
+      "auth/operation-not-supported-in-this-environment": "Этот браузер не поддерживает вход через Google. Попробуйте актуальную версию Chrome или Safari.",
       default: "Не удалось выполнить вход. Проверьте данные и попробуйте ещё раз.",
     },
     en: {
@@ -51,6 +55,8 @@ function getAuthError(code: AuthErrorCode, locale: string) {
       "auth/cancelled-popup-request": "The Google sign-in request was replaced. Please try again.",
       "auth/account-exists-with-different-credential": "This email already uses a password. Sign in with email and password, then open Profile → Settings to link Google.",
       "auth/network-request-failed": "Network error. Check your internet connection.",
+      "auth/web-storage-unsupported": "The browser blocked storage required for sign-in. Try another browser.",
+      "auth/operation-not-supported-in-this-environment": "This browser does not support Google sign-in. Try an up-to-date version of Chrome or Safari.",
       default: "Sign-in failed. Check your details and try again.",
     },
   };
@@ -62,7 +68,7 @@ function getAuthError(code: AuthErrorCode, locale: string) {
 
 export default function LoginPage() {
   const { locale } = useLanguage();
-  const { user, loading, configured, signUp, signIn, signInWithGoogle } = useAuth();
+  const { user, loading, configured, signUp, signIn, signInWithGoogle, redirectErrorCode, clearRedirectError } = useAuth();
   const router = useRouter();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [name, setName] = useState("");
@@ -77,6 +83,7 @@ export default function LoginPage() {
     ru: { title: "Добро пожаловать в Aleuet", subtitle: "Войдите, чтобы сохранять свой прогресс обучения.", name: "Имя", email: "Email", password: "Пароль", signIn: "Войти", signUp: "Создать аккаунт", google: "Продолжить с Google", or: "или", switchIn: "Уже есть аккаунт? Войти", switchUp: "Новый пользователь? Создать аккаунт", notReady: "Firebase ещё не настроен. Проверьте параметры окружения.", back: "Вернуться на главную" },
     en: { title: "Welcome to Aleuet", subtitle: "Sign in to save your learning progress.", name: "Name", email: "Email", password: "Password", signIn: "Sign in", signUp: "Create account", google: "Continue with Google", or: "or", switchIn: "Already have an account? Sign in", switchUp: "New here? Create an account", notReady: "Firebase is not configured yet. Check the environment settings.", back: "Back to home" },
   }[locale];
+  const visibleError = error || (redirectErrorCode ? getAuthError(redirectErrorCode, locale) : "");
 
   useEffect(() => {
     if (!loading && user) router.replace("/profile");
@@ -86,6 +93,7 @@ export default function LoginPage() {
     event.preventDefault();
     setBusy(true);
     setError("");
+    clearRedirectError();
     try {
       if (mode === "signup") await signUp(name, email, password);
       else await signIn(email, password);
@@ -101,9 +109,9 @@ export default function LoginPage() {
   async function submitGoogle() {
     setGoogleBusy(true);
     setError("");
+    clearRedirectError();
     try {
       await signInWithGoogle();
-      router.replace("/profile");
     } catch (reason) {
       const code = typeof reason === "object" && reason && "code" in reason ? String(reason.code) : "";
       setError(getAuthError(code, locale));
@@ -131,7 +139,7 @@ export default function LoginPage() {
               {mode === "signup" && <label className="block text-sm font-bold">{copy.name}<input required autoComplete="name" value={name} onChange={(event) => setName(event.target.value)} className="mt-1.5 w-full rounded-xl border border-[#d8dacb] bg-transparent px-4 py-3 font-normal outline-none focus:border-[#7d941b] dark:border-[#394131]" /></label>}
               <label className="block text-sm font-bold">{copy.email}<input required type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} className="mt-1.5 w-full rounded-xl border border-[#d8dacb] bg-transparent px-4 py-3 font-normal outline-none focus:border-[#7d941b] dark:border-[#394131]" /></label>
               <label className="block text-sm font-bold">{copy.password}<input required type="password" minLength={6} autoComplete={mode === "signup" ? "new-password" : "current-password"} value={password} onChange={(event) => setPassword(event.target.value)} className="mt-1.5 w-full rounded-xl border border-[#d8dacb] bg-transparent px-4 py-3 font-normal outline-none focus:border-[#7d941b] dark:border-[#394131]" /></label>
-              {error && <p role="alert" className="flex items-start gap-2 rounded-xl bg-[#fff0ee] p-3 text-sm text-[#a3241b] dark:bg-[#3d1919] dark:text-[#ffaaa3]"><AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />{error}</p>}
+              {visibleError && <p role="alert" className="flex items-start gap-2 rounded-xl bg-[#fff0ee] p-3 text-sm text-[#a3241b] dark:bg-[#3d1919] dark:text-[#ffaaa3]"><AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />{visibleError}</p>}
               <button type="submit" disabled={busy || googleBusy} className="flex w-full items-center justify-center gap-2 rounded-full bg-[#171914] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#32362c] disabled:opacity-60 dark:bg-[#d8f06a] dark:text-[#171914]">
                 {busy && <LoaderCircle className="h-4 w-4 animate-spin" />}{mode === "signin" ? copy.signIn : copy.signUp}
               </button>

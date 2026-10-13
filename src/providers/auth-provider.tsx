@@ -11,10 +11,11 @@ import {
 import {
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
+  getRedirectResult,
+  linkWithRedirect,
   onAuthStateChanged,
-  linkWithPopup,
   signInWithEmailAndPassword,
-  signInWithPopup,
+  signInWithRedirect,
   signOut,
   updateProfile,
   type User,
@@ -25,6 +26,8 @@ interface AuthContextValue {
   user: User | null;
   loading: boolean;
   configured: boolean;
+  redirectErrorCode: string | null;
+  clearRedirectError: () => void;
   signUp: (name: string, email: string, password: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
@@ -37,14 +40,25 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(isFirebaseConfigured);
+  const [redirectErrorCode, setRedirectErrorCode] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isFirebaseConfigured) return;
 
-    return onAuthStateChanged(getFirebaseClient().auth, (nextUser) => {
+    const auth = getFirebaseClient().auth;
+    const unsubscribe = onAuthStateChanged(auth, (nextUser) => {
       setUser(nextUser);
       setLoading(false);
     });
+    void getRedirectResult(auth).catch((reason: unknown) => {
+      if (typeof reason === "object" && reason && "code" in reason) {
+        setRedirectErrorCode(String(reason.code));
+      } else {
+        setRedirectErrorCode("auth/unknown");
+      }
+    });
+
+    return unsubscribe;
   }, []);
 
   const signUp = useCallback(async (name: string, email: string, password: string) => {
@@ -60,7 +74,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithGoogle = useCallback(async () => {
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: "select_account" });
-    await signInWithPopup(getFirebaseClient().auth, provider);
+    setRedirectErrorCode(null);
+    await signInWithRedirect(getFirebaseClient().auth, provider);
   }, []);
 
   const linkGoogleAccount = useCallback(async () => {
@@ -68,15 +83,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!currentUser) throw new Error("Sign in before linking Google.");
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: "select_account" });
-    await linkWithPopup(currentUser, provider);
+    setRedirectErrorCode(null);
+    await linkWithRedirect(currentUser, provider);
   }, []);
+
+  const clearRedirectError = useCallback(() => setRedirectErrorCode(null), []);
 
   const logOut = useCallback(async () => {
     await signOut(getFirebaseClient().auth);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, configured: isFirebaseConfigured, signUp, signIn, signInWithGoogle, linkGoogleAccount, logOut }}>
+    <AuthContext.Provider value={{ user, loading, configured: isFirebaseConfigured, redirectErrorCode, clearRedirectError, signUp, signIn, signInWithGoogle, linkGoogleAccount, logOut }}>
       {children}
     </AuthContext.Provider>
   );

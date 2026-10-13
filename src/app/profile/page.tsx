@@ -27,7 +27,7 @@ const copyByLocale = {
 
 export default function ProfilePage() {
   const { t, locale } = useLanguage();
-  const { user, loading, logOut, linkGoogleAccount } = useAuth();
+  const { user, loading, logOut, linkGoogleAccount, redirectErrorCode, clearRedirectError } = useAuth();
   const router = useRouter();
   const copy = copyByLocale[locale];
   const [tab, setTab] = useState("profile");
@@ -93,6 +93,7 @@ export default function ProfilePage() {
   async function connectGoogle() {
     setGoogleBusy(true);
     setError("");
+    clearRedirectError();
     try {
       await linkGoogleAccount();
       setGoogleLinkedForUid(user?.uid ?? null);
@@ -130,6 +131,7 @@ export default function ProfilePage() {
           <div className="flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 text-xs font-bold"><BadgeCheck className="h-4 w-4 text-[#d8f06a]"/>{copy.title}</div>
         </div>
       </div>
+      {redirectErrorCode && <p role="alert" className="mt-4 rounded-xl bg-[#fff0ee] p-3 text-sm text-[#a3241b] dark:bg-[#3d1919] dark:text-[#ffaaa3]">{copy.googleLinkError} ({redirectErrorCode}) <button onClick={clearRedirectError} className="ml-2 font-bold underline">OK</button></p>}
       <div className="mt-6 border-b border-[#e2e4d8] dark:border-[#2e3528]"><Tabs tabs={tabs} activeTab={tab} onChange={setTab} variant="underline" /></div>
       <div className="mt-6">
         {tab === "profile" && <div className="grid gap-4 md:grid-cols-2"><section className="rounded-2xl border border-[#e2e4d8] bg-white p-5 dark:border-[#2e3528] dark:bg-[#191c16]"><h2 className="font-black">{copy.overview}</h2><p className="mt-3 text-sm text-[#5c6055] dark:text-[#9ea594]">{copy.empty}</p><Link href="/catalog" className="mt-5 inline-flex rounded-full bg-[#d8f06a] px-4 py-2 text-sm font-bold text-[#171914]">{copy.catalog}</Link></section><form onSubmit={saveProfile} className="space-y-4 rounded-2xl border border-[#e2e4d8] bg-white p-5 dark:border-[#2e3528] dark:bg-[#191c16]">
