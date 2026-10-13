@@ -11,7 +11,8 @@ import { useLanguage } from "@/providers/language-provider";
 import { getFirebaseClient } from "@/lib/firebase/client";
 import { materials as initialMaterials } from "@/data/materials";
 import { events as initialEvents } from "@/data/events";
-import type { EventItem, Material } from "@/types";
+import { topics } from "@/data/topics";
+import type { EventItem, Level, Material } from "@/types";
 
 type Kind = "materials" | "events";
 type Entry = (Material | EventItem) & { publicationStatus: "draft" | "published" };
@@ -118,8 +119,32 @@ export default function AdminPage() {
     catch { setError(t.error); } finally { setBusy(false); }
   }
 
-  function updateField(field: "title" | "subtitle" | "summary" | "description" | "date" | "time" | "city" | "venue", value: string) {
+  function updateField(field: "title" | "subtitle" | "summary" | "description" | "date" | "dateDay" | "dateMonth" | "time" | "city" | "venue" | "typeLabel" | "durationMinutes" | "xpReward" | "topicId" | "level" | "spotsLeft" | "totalSpots" | "isOnline" | "type", value: string | number | boolean) {
     setEntries((rows) => rows.map((row) => row.slug === selected ? { ...row, [field]: value } as Entry : row));
+  }
+
+  function updateOutcome(index: number, value: string) {
+    setEntries((rows) => rows.map((row) => row.slug === selected ? { ...row, learningOutcomes: (row as Material).learningOutcomes.map((item, itemIndex) => itemIndex === index ? value : item) } as Entry : row));
+  }
+
+  function addOutcome() {
+    setEntries((rows) => rows.map((row) => row.slug === selected ? { ...row, learningOutcomes: [...(row as Material).learningOutcomes, ""] } as Entry : row));
+  }
+
+  function removeOutcome(index: number) {
+    setEntries((rows) => rows.map((row) => row.slug === selected ? { ...row, learningOutcomes: (row as Material).learningOutcomes.filter((_, itemIndex) => itemIndex !== index) } as Entry : row));
+  }
+
+  function updateProgram(index: number, field: "time" | "title" | "description", value: string) {
+    setEntries((rows) => rows.map((row) => row.slug === selected ? { ...row, program: (row as EventItem).program.map((item, itemIndex) => itemIndex === index ? { ...item, [field]: value } : item) } as Entry : row));
+  }
+
+  function addProgramItem() {
+    setEntries((rows) => rows.map((row) => row.slug === selected ? { ...row, program: [...(row as EventItem).program, { time: "", title: "", description: "" }] } as Entry : row));
+  }
+
+  function removeProgramItem(index: number) {
+    setEntries((rows) => rows.map((row) => row.slug === selected ? { ...row, program: (row as EventItem).program.filter((_, itemIndex) => itemIndex !== index) } as Entry : row));
   }
 
   if (loading || (user && checking)) return <div className="flex min-h-[55vh] items-center justify-center"><LoaderCircle className="h-7 w-7 animate-spin"/></div>;
@@ -137,8 +162,26 @@ export default function AdminPage() {
         <label className="block text-sm font-bold">{t.titleField}<input maxLength={180} value={active.title} onChange={(event) => updateField("title", event.target.value)} className="mt-1.5 w-full rounded-xl border border-[#d8dacb] bg-transparent px-4 py-3 font-normal dark:border-[#394131]"/></label>
         <label className="block text-sm font-bold">{t.slug}<input readOnly value={active.slug} className="mt-1.5 w-full rounded-xl border border-[#d8dacb] bg-[#f7f7f2] px-4 py-3 font-mono text-sm font-normal dark:border-[#394131] dark:bg-[#11130f]"/></label>
         <label className="block text-sm font-bold">{t.desc}<textarea maxLength={5000} rows={5} value={isMaterial ? (active as Material).summary : (active as EventItem).description} onChange={(event) => updateField(isMaterial ? "summary" : "description", event.target.value)} className="mt-1.5 w-full rounded-xl border border-[#d8dacb] bg-transparent px-4 py-3 font-normal dark:border-[#394131]"/></label>
-        {isMaterial && <label className="block text-sm font-bold">Подзаголовок<input maxLength={300} value={(active as Material).subtitle} onChange={(event) => updateField("subtitle", event.target.value)} className="mt-1.5 w-full rounded-xl border border-[#d8dacb] bg-transparent px-4 py-3 font-normal dark:border-[#394131]"/></label>}
-        {!isMaterial && <div className="grid gap-4 sm:grid-cols-2">{(["date", "time", "city", "venue"] as const).map((field) => <label key={field} className="block text-sm font-bold">{{ date: "Күні / дата", time: "Уақыты / время", city: "Қала / город", venue: "Өтетін орны / место" }[field]}<input maxLength={180} value={(active as EventItem)[field]} onChange={(event) => updateField(field, event.target.value)} className="mt-1.5 w-full rounded-xl border border-[#d8dacb] bg-transparent px-4 py-3 font-normal dark:border-[#394131]"/></label>)}</div>}
+        {isMaterial && <>
+          <label className="block text-sm font-bold">Подзаголовок<input maxLength={300} value={(active as Material).subtitle} onChange={(event) => updateField("subtitle", event.target.value)} className="mt-1.5 w-full rounded-xl border border-[#d8dacb] bg-transparent px-4 py-3 font-normal dark:border-[#394131]"/></label>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="block text-sm font-bold">Бағыт / Topic<select value={(active as Material).topicId} onChange={(event) => updateField("topicId", event.target.value)} className="mt-1.5 w-full rounded-xl border border-[#d8dacb] bg-white px-4 py-3 dark:border-[#394131] dark:bg-[#191c16]">{topics.map((topic) => <option key={topic.id} value={topic.id}>{locale === "kk" ? topic.titleKk : locale === "ru" ? topic.titleRu : topic.titleEn}</option>)}</select></label>
+            <label className="block text-sm font-bold">Деңгей / Level<select value={(active as Material).level} onChange={(event) => updateField("level", event.target.value as Level)} className="mt-1.5 w-full rounded-xl border border-[#d8dacb] bg-white px-4 py-3 dark:border-[#394131] dark:bg-[#191c16]"><option value="beginner">Beginner</option><option value="intermediate">Intermediate</option><option value="advanced">Advanced</option></select></label>
+            <label className="block text-sm font-bold">Ұзақтығы (минут)<input type="number" min={1} max={600} value={(active as Material).durationMinutes} onChange={(event) => updateField("durationMinutes", Number(event.target.value))} className="mt-1.5 w-full rounded-xl border border-[#d8dacb] bg-transparent px-4 py-3 font-normal dark:border-[#394131]"/></label>
+            <label className="block text-sm font-bold">Сыйақы (XP)<input type="number" min={0} max={10000} value={(active as Material).xpReward} onChange={(event) => updateField("xpReward", Number(event.target.value))} className="mt-1.5 w-full rounded-xl border border-[#d8dacb] bg-transparent px-4 py-3 font-normal dark:border-[#394131]"/></label>
+          </div>
+          <fieldset className="space-y-2 rounded-xl border border-[#e2e4d8] p-4 dark:border-[#394131]"><legend className="px-1 text-sm font-bold">Автор</legend><label className="block text-xs font-bold">Аты<input maxLength={120} value={(active as Material).author.name} onChange={(event) => setEntries((rows) => rows.map((row) => row.slug === selected ? { ...row, author: { ...(row as Material).author, name: event.target.value } } as Entry : row))} className="mt-1 w-full rounded-lg border border-[#d8dacb] bg-transparent px-3 py-2 text-sm font-normal dark:border-[#394131]"/></label><label className="block text-xs font-bold">Рөлі<input maxLength={160} value={(active as Material).author.role} onChange={(event) => setEntries((rows) => rows.map((row) => row.slug === selected ? { ...row, author: { ...(row as Material).author, role: event.target.value } } as Entry : row))} className="mt-1 w-full rounded-lg border border-[#d8dacb] bg-transparent px-3 py-2 text-sm font-normal dark:border-[#394131]"/></label></fieldset>
+          <fieldset className="space-y-2 rounded-xl border border-[#e2e4d8] p-4 dark:border-[#394131]"><legend className="px-1 text-sm font-bold">Оқу нәтижелері</legend>{(active as Material).learningOutcomes.map((outcome, index) => <div key={index} className="flex gap-2"><input maxLength={300} value={outcome} onChange={(event) => updateOutcome(index, event.target.value)} className="w-full rounded-lg border border-[#d8dacb] bg-transparent px-3 py-2 text-sm font-normal dark:border-[#394131]"/><button type="button" onClick={() => removeOutcome(index)} aria-label="Remove outcome" className="px-2 text-[#9b342a]">×</button></div>)}<button type="button" onClick={addOutcome} className="text-sm font-bold text-[#4d6300] underline dark:text-[#d8f06a]">+ Нәтиже қосу</button></fieldset>
+        </>}
+        {!isMaterial && <>
+          <div className="grid gap-4 sm:grid-cols-2">{(["date", "dateDay", "dateMonth", "time", "city", "venue", "typeLabel"] as const).map((field) => <label key={field} className="block text-sm font-bold">{{ date: "Күні / дата", dateDay: "Күн нөмірі / число", dateMonth: "Ай / месяц", time: "Уақыты / время", city: "Қала / город", venue: "Өтетін орны / место", typeLabel: "Оқиға түрінің белгісі / Тип события" }[field]}<input maxLength={180} value={(active as EventItem)[field]} onChange={(event) => updateField(field, event.target.value)} className="mt-1.5 w-full rounded-xl border border-[#d8dacb] bg-transparent px-4 py-3 font-normal dark:border-[#394131]"/></label>)}
+            <label className="block text-sm font-bold">Формат<select value={(active as EventItem).type} onChange={(event) => updateField("type", event.target.value as EventItem["type"])} className="mt-1.5 w-full rounded-xl border border-[#d8dacb] bg-white px-4 py-3 dark:border-[#394131] dark:bg-[#191c16]"><option value="workshop">Workshop</option><option value="webinar">Webinar</option><option value="meetup">Meetup</option></select></label>
+            <label className="flex items-center gap-2 pt-6 text-sm font-bold"><input type="checkbox" checked={(active as EventItem).isOnline} onChange={(event) => updateField("isOnline", event.target.checked)} className="h-4 w-4 accent-[#718527]"/>Онлайн</label>
+            {(["spotsLeft", "totalSpots"] as const).map((field) => <label key={field} className="block text-sm font-bold">{field === "spotsLeft" ? "Қалған орын / Осталось мест" : "Орын саны / Всего мест"}<input type="number" min={0} max={10000} value={(active as EventItem)[field]} onChange={(event) => updateField(field, Number(event.target.value))} className="mt-1.5 w-full rounded-xl border border-[#d8dacb] bg-transparent px-4 py-3 font-normal dark:border-[#394131]"/></label>)}
+          </div>
+          <fieldset className="space-y-2 rounded-xl border border-[#e2e4d8] p-4 dark:border-[#394131]"><legend className="px-1 text-sm font-bold">Спикер</legend>{(["name", "role", "bio"] as const).map((field) => <label key={field} className="block text-xs font-bold">{{ name: "Аты", role: "Рөлі", bio: "Биография" }[field]}{field === "bio" ? <textarea maxLength={1500} rows={3} value={(active as EventItem).speaker[field]} onChange={(event) => setEntries((rows) => rows.map((row) => row.slug === selected ? { ...row, speaker: { ...(row as EventItem).speaker, [field]: event.target.value } } as Entry : row))} className="mt-1 w-full rounded-lg border border-[#d8dacb] bg-transparent px-3 py-2 text-sm font-normal dark:border-[#394131]"/> : <input maxLength={160} value={(active as EventItem).speaker[field]} onChange={(event) => setEntries((rows) => rows.map((row) => row.slug === selected ? { ...row, speaker: { ...(row as EventItem).speaker, [field]: event.target.value } } as Entry : row))} className="mt-1 w-full rounded-lg border border-[#d8dacb] bg-transparent px-3 py-2 text-sm font-normal dark:border-[#394131]"/>}</label>)}</fieldset>
+          <fieldset className="space-y-3 rounded-xl border border-[#e2e4d8] p-4 dark:border-[#394131]"><legend className="px-1 text-sm font-bold">Бағдарлама / Program</legend>{(active as EventItem).program.map((item, index) => <div key={index} className="space-y-2 rounded-lg bg-[#f7f7f2] p-3 dark:bg-[#11130f]"><div className="flex gap-2"><input aria-label="Program time" maxLength={40} value={item.time} onChange={(event) => updateProgram(index, "time", event.target.value)} className="w-1/3 rounded-lg border border-[#d8dacb] bg-transparent px-3 py-2 text-sm dark:border-[#394131]"/><input aria-label="Program title" maxLength={180} value={item.title} onChange={(event) => updateProgram(index, "title", event.target.value)} className="w-full rounded-lg border border-[#d8dacb] bg-transparent px-3 py-2 text-sm dark:border-[#394131]"/><button type="button" onClick={() => removeProgramItem(index)} aria-label="Remove program item" className="px-2 text-[#9b342a]">×</button></div><textarea aria-label="Program description" maxLength={800} rows={2} value={item.description} onChange={(event) => updateProgram(index, "description", event.target.value)} className="w-full rounded-lg border border-[#d8dacb] bg-transparent px-3 py-2 text-sm dark:border-[#394131]"/></div>)}<button type="button" onClick={addProgramItem} className="text-sm font-bold text-[#4d6300] underline dark:text-[#d8f06a]">+ Бағдарлама тармағын қосу</button></fieldset>
+        </>}
         <label className="block text-sm font-bold">{t.status}<select value={active.publicationStatus} onChange={(event) => setEntries((rows) => rows.map((row) => row.slug === selected ? { ...row, publicationStatus: event.target.value as Entry["publicationStatus"] } : row))} className="mt-1.5 w-full rounded-xl border border-[#d8dacb] bg-white px-4 py-3 dark:border-[#394131] dark:bg-[#191c16]"><option value="draft">{t.draft}</option><option value="published">{t.published}</option></select></label>
         <div className="flex flex-wrap justify-between gap-3 border-t border-[#e2e4d8] pt-4 dark:border-[#2e3528]"><button onClick={removeEntry} disabled={busy} className="inline-flex items-center gap-2 rounded-full border border-[#ecc7c2] px-4 py-2 text-sm font-bold text-[#9b342a] disabled:opacity-50"><Trash2 className="h-4 w-4"/>{t.remove}</button><button onClick={saveEntry} disabled={busy} className="inline-flex items-center gap-2 rounded-full bg-[#171914] px-5 py-2 text-sm font-bold text-white disabled:opacity-50"><Save className="h-4 w-4"/>{busy ? "…" : t.save}</button></div>
       </div> : <p className="p-8 text-center text-sm text-[#71766a]">{t.empty}</p>}</section>
