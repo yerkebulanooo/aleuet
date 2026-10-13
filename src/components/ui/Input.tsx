@@ -16,14 +16,14 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#5c6055]"
+            className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#5c6055] dark:text-[#9ea594]"
           >
             {label}
           </label>
         )}
         <div className="relative flex items-center">
           {icon && (
-            <span className="pointer-events-none absolute left-4 text-[#71766a]">
+            <span className="pointer-events-none absolute left-4 text-[#71766a] dark:text-[#888e7f]">
               {icon}
             </span>
           )}
@@ -31,7 +31,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             id={inputId}
             ref={ref}
             className={cn(
-              "w-full rounded-full border border-[#c9cbbf] bg-white px-5 py-3 text-sm font-medium text-[#171914] placeholder-[#8e9386] transition-all focus:border-[#171914] focus:outline-none focus:ring-2 focus:ring-[#171914] disabled:opacity-50",
+              "w-full rounded-full border border-[#c9cbbf] dark:border-[#333a2d] bg-white dark:bg-[#191c16] px-5 py-3 text-sm font-medium text-[#171914] dark:text-[#f2f4ec] placeholder-[#8e9386] dark:placeholder-[#6f7566] transition-all focus:border-[#171914] dark:focus:border-[#d8f06a] focus:outline-none focus:ring-2 focus:ring-[#171914] dark:focus:ring-[#d8f06a] disabled:opacity-50",
               icon ? "pl-11" : "pl-5",
               error && "border-red-500 focus:border-red-500 focus:ring-red-500",
               className

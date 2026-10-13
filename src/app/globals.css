@@ -1,8 +1,49 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
+  color-scheme: light;
   --background: #f7f7f2;
   --foreground: #171914;
+  --surface: #ffffff;
+  --surface-card: #ffffff;
+  --surface-muted: #f0f1e8;
+  --border: #e2e4d8;
+  --border-subtle: #eceee2;
+  --muted: #ebeee0;
+  --muted-foreground: #5c6055;
+  --primary: #171914;
+  --primary-foreground: #ffffff;
+  --accent-lime: #d8f06a;
+  --accent-lime-fg: #2c3a00;
+  --accent-sky: #a7dcff;
+  --accent-sky-fg: #004566;
+  --accent-peach: #ffd6a5;
+  --accent-peach-fg: #662f00;
+  --ring: #171914;
+}
+
+.dark {
+  color-scheme: dark;
+  --background: #11130f;
+  --foreground: #f2f4ec;
+  --surface: #191c16;
+  --surface-card: #1f231b;
+  --surface-muted: #272c22;
+  --border: #2e3528;
+  --border-subtle: #262c21;
+  --muted: #282e23;
+  --muted-foreground: #9ea594;
+  --primary: #d8f06a;
+  --primary-foreground: #171914;
+  --accent-lime: #d8f06a;
+  --accent-lime-fg: #171914;
+  --accent-sky: #70c4ff;
+  --accent-sky-fg: #041f2e;
+  --accent-peach: #ffbe7a;
+  --accent-peach-fg: #2e1400;
+  --ring: #d8f06a;
 }
 
 * {
@@ -15,13 +56,57 @@ html {
 
 body {
   margin: 0;
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", sans-serif;
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+input, textarea, select {
+  color-scheme: inherit;
+}
+
+/* Apply the dark palette to legacy pages that still use fixed light utilities. */
+.dark [class~="bg-white"],
+.dark [class~="bg-[#ffffff]"],
+.dark [class~="bg-[#fbfbf9]"],
+.dark [class~="bg-[#f7f7f2]"] {
+  background-color: #191c16 !important;
+}
+
+.dark [class~="bg-[#f0f1e8]"],
+.dark [class~="bg-[#ebeee0]"],
+.dark [class~="bg-[#eef7ff]"],
+.dark [class~="bg-[#f0fbf2]"] {
+  background-color: #272c22 !important;
+}
+
+.dark [class~="text-[#171914]"],
+.dark [class~="text-[#1a1a1a]"],
+.dark [class~="text-black"] {
+  color: #f2f4ec !important;
+}
+
+.dark [class~="text-[#5c6055]"],
+.dark [class~="text-[#555a4e]"],
+.dark [class~="text-[#55594e]"],
+.dark [class~="text-[#71766a]"],
+.dark [class~="text-[#606557]"],
+.dark [class~="text-[#8a8f82]"] {
+  color: #9ea594 !important;
+}
+
+.dark [class~="border-[#e2e4d8]"],
+.dark [class~="border-[#e5e7dc]"],
+.dark [class~="border-[#eceee2]"],
+.dark [class~="border-[#f0f1e8]"],
+.dark [class~="border-[#d8dacb]"] {
+  border-color: #2e3528 !important;
 }
 
 button,
 a {
   transition-duration: 180ms;
 }
+

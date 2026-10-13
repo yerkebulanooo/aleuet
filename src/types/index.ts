@@ -7,6 +7,12 @@ export interface Topic {
   slug: string;
   title: string;
   description: string;
+  titleKk?: string;
+  titleRu?: string;
+  titleEn?: string;
+  descriptionKk?: string;
+  descriptionRu?: string;
+  descriptionEn?: string;
   accentBg: string;
   accentText: string;
   materialsCount: number;
@@ -17,7 +23,8 @@ export interface ResourceItem {
   title: string;
   type: "pdf" | "template" | "link" | "checklist";
   size?: string;
-  url: string;
+  url?: string;
+  isReady?: boolean;
 }
 
 export interface VideoChapter {

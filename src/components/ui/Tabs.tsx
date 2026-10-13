@@ -30,7 +30,7 @@ export function Tabs({
       <div
         role="tablist"
         className={cn(
-          "flex flex-wrap items-center gap-1.5 rounded-full bg-[#ebeee0] p-1.5 text-sm font-semibold text-[#5c6055]",
+          "flex flex-wrap items-center gap-1.5 rounded-full bg-[#ebeee0] dark:bg-[#232820] p-1.5 text-sm font-semibold text-[#5c6055] dark:text-[#9ea594]",
           className
         )}
       >
@@ -43,10 +43,10 @@ export function Tabs({
               aria-selected={isActive}
               onClick={() => onChange(tab.id)}
               className={cn(
-                "flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all sm:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#171914]",
+                "flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all sm:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#171914] dark:focus-visible:ring-[#d8f06a]",
                 isActive
-                  ? "bg-white text-[#171914] shadow-xs"
-                  : "text-[#606557] hover:text-[#171914] hover:bg-black/5"
+                  ? "bg-white dark:bg-[#11130f] text-[#171914] dark:text-[#f2f4ec] shadow-xs"
+                  : "text-[#606557] dark:text-[#9ea594] hover:text-[#171914] dark:hover:text-[#f2f4ec] hover:bg-black/5 dark:hover:bg-white/5"
               )}
             >
               {tab.icon && <span>{tab.icon}</span>}
@@ -55,7 +55,9 @@ export function Tabs({
                 <span
                   className={cn(
                     "rounded-full px-1.5 py-0.2 text-[10px]",
-                    isActive ? "bg-[#d8f06a] text-[#3e5000]" : "bg-black/10 text-[#55594e]"
+                    isActive
+                      ? "bg-[#d8f06a] text-[#3e5000]"
+                      : "bg-black/10 dark:bg-white/10 text-[#55594e] dark:text-[#a0a696]"
                   )}
                 >
                   {tab.count}
@@ -71,7 +73,7 @@ export function Tabs({
   return (
     <div
       role="tablist"
-      className={cn("flex border-b border-[#e2e4d8] gap-6 text-sm font-semibold", className)}
+      className={cn("flex border-b border-[#e2e4d8] dark:border-[#2e3528] gap-6 text-sm font-semibold", className)}
     >
       {tabs.map((tab) => {
         const isActive = tab.id === activeTab;
@@ -82,8 +84,10 @@ export function Tabs({
             aria-selected={isActive}
             onClick={() => onChange(tab.id)}
             className={cn(
-              "relative pb-3 text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#171914]",
-              isActive ? "text-[#171914]" : "text-[#71766a] hover:text-[#171914]"
+              "relative pb-3 text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#171914] dark:focus-visible:ring-[#d8f06a]",
+              isActive
+                ? "text-[#171914] dark:text-[#d8f06a]"
+                : "text-[#71766a] dark:text-[#888e7f] hover:text-[#171914] dark:hover:text-[#f2f4ec]"
             )}
           >
             <div className="flex items-center gap-2">
@@ -93,7 +97,9 @@ export function Tabs({
                 <span
                   className={cn(
                     "rounded-full px-2 py-0.5 text-xs font-bold",
-                    isActive ? "bg-[#171914] text-white" : "bg-[#ebeee0] text-[#55594e]"
+                    isActive
+                      ? "bg-[#171914] dark:bg-[#d8f06a] text-white dark:text-[#171914]"
+                      : "bg-[#ebeee0] dark:bg-[#262c21] text-[#55594e] dark:text-[#a0a696]"
                   )}
                 >
                   {tab.count}
@@ -101,7 +107,7 @@ export function Tabs({
               )}
             </div>
             {isActive && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full bg-[#171914]" />
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full bg-[#171914] dark:bg-[#d8f06a]" />
             )}
           </button>
         );

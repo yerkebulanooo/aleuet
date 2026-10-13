@@ -6,17 +6,22 @@ import { currentUser } from "@/data/user";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Badge } from "@/components/ui/Badge";
 import { Tabs } from "@/components/ui/Tabs";
+import { useLanguage } from "@/providers/language-provider";
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
+import { ThemeSwitcher } from "@/components/layout/ThemeSwitcher";
 
 
 
 export default function ProfilePage() {
+  const { t, locale } = useLanguage();
+  const d = t.pages.profile;
   const [activeTab, setActiveTab] = useState("overview");
 
   const tabs = [
-    { id: "overview", label: "Обзор" },
-    { id: "achievements", label: "Достижения", count: currentUser.achievements.length },
-    { id: "works", label: "Работы", count: currentUser.savedWorks.length },
-    { id: "settings", label: "Настройки" },
+    { id: "overview", label: d.tabOverview },
+    { id: "achievements", label: d.tabAchievements, count: currentUser.achievements.length },
+    { id: "works", label: d.tabWorks, count: currentUser.savedWorks.length },
+    { id: "settings", label: d.tabSettings },
   ];
 
   return (
@@ -30,7 +35,7 @@ export default function ProfilePage() {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-xl font-black">{currentUser.name}</h1>
-                <Badge variant="lime" size="sm">Ур. {currentUser.level}</Badge>
+                <Badge variant="lime" size="sm">{t.common.level} {currentUser.level}</Badge>
               </div>
               <p className="text-xs text-white/70">{currentUser.grade} · {currentUser.city}</p>
             </div>
@@ -38,7 +43,7 @@ export default function ProfilePage() {
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5 rounded-xl bg-white/10 px-3 py-1.5 text-center text-xs font-bold text-[#ffd6a5]">
               <Flame className="h-3.5 w-3.5 fill-current text-[#d96500]" />
-              <span>{currentUser.streakDays} дн</span>
+              <span>{currentUser.streakDays} {t.common.days}</span>
             </div>
             <div className="flex items-center gap-1.5 rounded-xl bg-white/10 px-3 py-1.5 text-center text-xs font-bold text-[#d8f06a]">
               <Sparkles className="h-3.5 w-3.5" />
@@ -108,9 +113,10 @@ export default function ProfilePage() {
 
         {activeTab === "settings" && (
           <div className="rounded-2xl border border-[#e2e4d8] bg-white p-5 space-y-3 text-sm">
-            <div className="flex justify-between border-b pb-2"><span>Язык интерфейса</span><span className="font-bold">Русский</span></div>
-            <div className="flex justify-between border-b pb-2"><span>Уведомления</span><span className="font-bold text-[#3e5000]">Включены</span></div>
-            <div className="flex justify-between"><span>Приватность</span><span className="font-bold">Только менторы</span></div>
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b pb-3"><span>{d.settingsLang}</span><LanguageSwitcher /></div>
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b pb-3"><span>{t.theme.toggleLabel}</span><ThemeSwitcher /></div>
+            <div className="flex justify-between border-b pb-2"><span>{d.settingsNotifications}</span><span className="font-bold text-[#3e5000]">{locale === "kk" ? "Қосулы" : locale === "ru" ? "Включены" : "On"}</span></div>
+            <div className="flex justify-between"><span>{d.settingsPrivacy}</span><span className="font-bold">{d.settingsPrivacyValue}</span></div>
           </div>
         )}
       </div>

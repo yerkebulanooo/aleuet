@@ -10,19 +10,21 @@ import { RouteCard } from "@/components/learning/RouteCard";
 import { ActivityHistory } from "@/components/learning/ActivityHistory";
 import { Tabs } from "@/components/ui/Tabs";
 import { Button } from "@/components/ui/Button";
+import { useLanguage } from "@/providers/language-provider";
 
 export default function LearningPage() {
-
+  const { t } = useLanguage();
+  const d = t.pages.learning;
   const [activeTab, setActiveTab] = useState("current");
 
   const inProgressMaterials = materials.filter((m) => m.status === "in_progress");
   const completedMaterials = materials.filter((m) => m.status === "completed");
 
   const tabs = [
-    { id: "current", label: "В процессе", count: inProgressMaterials.length },
-    { id: "routes", label: "Образовательные маршруты", count: learningRoutes.length },
-    { id: "completed", label: "Завершённые", count: completedMaterials.length },
-    { id: "history", label: "История активности" },
+    { id: "current", label: d.tabInProgress, count: inProgressMaterials.length },
+    { id: "routes", label: d.tabRoutes, count: learningRoutes.length },
+    { id: "completed", label: d.tabCompleted, count: completedMaterials.length },
+    { id: "history", label: d.tabHistory },
   ];
 
   return (
@@ -32,13 +34,13 @@ export default function LearningPage() {
         <div>
           <div className="inline-flex items-center gap-2 rounded-full bg-[#d8f06a] px-3.5 py-1 text-xs font-black uppercase text-[#3e5000]">
             <BookOpen className="h-3.5 w-3.5" />
-            <span>Мой трек развития</span>
+            <span>{d.badge}</span>
           </div>
           <h1 className="mt-3 text-3xl font-black tracking-tight text-[#171914] sm:text-4xl">
-            Моё обучение
+            {d.title}
           </h1>
           <p className="mt-1 text-sm text-[#5c6055]">
-            Отслеживайте пройденные лекции, маршруты и историю активности.
+            {d.subtitle}
           </p>
         </div>
 
@@ -49,7 +51,7 @@ export default function LearningPage() {
             size="md"
             icon={<Compass className="h-4 w-4" />}
           >
-            Найти новый курс
+            {d.findCourseBtn}
           </Button>
         </div>
       </div>
@@ -79,14 +81,14 @@ export default function LearningPage() {
               <div className="rounded-[2.5rem] border border-[#e2e4d8] bg-white p-12 text-center">
                 <Clock className="mx-auto h-12 w-12 text-[#71766a]" />
                 <h3 className="mt-4 text-xl font-black text-[#171914]">
-                  Нет материалов в процессе
+                  {d.emptyInProgressTitle}
                 </h3>
                 <p className="mt-2 text-sm text-[#5c6055]">
-                  Выберите интересную лекцию из каталога и начните обучение прямо сейчас.
+                  {d.emptyInProgressDesc}
                 </p>
                 <div className="mt-6 flex justify-center">
                   <Button href="/catalog" variant="primary" size="md">
-                    Перейти в каталог
+                    {d.goToCatalogBtn}
                   </Button>
                 </div>
               </div>

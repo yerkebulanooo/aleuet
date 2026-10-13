@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { ThemeProvider } from "@/providers/theme-provider";
+import { LanguageProvider } from "@/providers/language-provider";
 import { Header } from "@/components/layout/Header";
+import { MvpBanner } from "@/components/layout/MvpBanner";
 import { Footer } from "@/components/layout/Footer";
 import { MobileNav } from "@/components/layout/MobileNav";
 
 export const metadata: Metadata = {
-  title: "Aleuet — учись применять знания",
+  title: "Aleuet — қазақ тіліндегі білім беру медиаплатформасы",
   description:
-    "Образовательная медиаплатформа для старшеклассников и молодых людей: исследования, карьера, личные финансы и критическое мышление.",
+    "Aleuet сарапшылардың білімін авторлық бейнематериалдарға, практикалық тапсырмаларға және интерактивті оқу маршруттарына айналдырады.",
 };
 
 export default function RootLayout({
@@ -16,16 +19,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ru">
-      <body className="min-h-screen bg-[#f7f7f2] text-[#171914] antialiased flex flex-col justify-between">
-        <div>
-          <Header />
-          <main className="pb-16 md:pb-0">{children}</main>
-        </div>
-        <Footer />
-        <MobileNav />
+    <html lang="kk" suppressHydrationWarning>
+      <body className="min-h-screen bg-[#f7f7f2] dark:bg-[#11130f] text-[#171914] dark:text-[#f2f4ec] antialiased flex flex-col justify-between transition-colors">
+        <ThemeProvider>
+          <LanguageProvider>
+            <div>
+              <MvpBanner />
+              <Header />
+              <main className="pb-16 md:pb-0">{children}</main>
+            </div>
+            <Footer />
+            <MobileNav />
+          </LanguageProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
 }
+
 

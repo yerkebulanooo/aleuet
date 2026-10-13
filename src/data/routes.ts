@@ -4,14 +4,14 @@ export const learningRoutes: LearningRoute[] = [
   {
     id: "route-research-starter",
     slug: "research-starter",
-    title: "Маршрут юного исследователя",
-    description: "Пошаговый трек от первой идеи и формулировки гипотезы до сбора данных и написания тезисов.",
+    title: "Жас зерттеушінің оқу маршруты",
+    description: "Бастапқы идея мен гипотезаны құрастырудан бастап дерек жинауға дейінгі қадамдық оқу бағыты.",
     topicId: "research",
-    topicTitle: "Исследования",
+    topicTitle: "Зерттеулер",
     accentBg: "bg-[#d8f06a]",
-    accentText: "text-[#4d6300]",
+    accentText: "text-[#3e5000]",
     totalMaterials: 3,
-    completedMaterials: 1,
+    completedMaterials: 0,
     materialSlugs: [
       "research-question-formulation",
       "literature-review-basics",
@@ -21,14 +21,14 @@ export const learningRoutes: LearningRoute[] = [
   {
     id: "route-career-launch",
     slug: "career-launch",
-    title: "Карьерный старт и сильное резюме",
-    description: "Как упаковать личные проекты, найти ментора и написать первое профессиональное письмо.",
+    title: "Мансаптық бастама және портфолио",
+    description: "Жеке жобаларды жүйелеу, ментор табу және алғашқы кәсіби хат жазу дағдылары.",
     topicId: "career",
-    topicTitle: "Карьера",
+    topicTitle: "Мансап",
     accentBg: "bg-[#a7dcff]",
-    accentText: "text-[#005580]",
+    accentText: "text-[#004f77]",
     totalMaterials: 2,
-    completedMaterials: 1,
+    completedMaterials: 0,
     materialSlugs: [
       "student-portfolio-strategy",
       "first-cv-and-cold-emails",
@@ -37,12 +37,12 @@ export const learningRoutes: LearningRoute[] = [
   {
     id: "route-academic-excellence",
     slug: "academic-excellence",
-    title: "Академическая грамотность и эссе",
-    description: "Критический анализ источников, структура аргументов и написание конкурсных работ.",
+    title: "Академиялық сауаттылық және эссе",
+    description: "Дереккөздерді сыни талдау, дәлелдер құрылымы және конкурс жұмыстарын рәсімдеу.",
     topicId: "academic-writing",
-    topicTitle: "Академическое письмо",
+    topicTitle: "Академиялық жазу",
     accentBg: "bg-[#cbf7d3]",
-    accentText: "text-[#1d6b30]",
+    accentText: "text-[#135924]",
     totalMaterials: 2,
     completedMaterials: 0,
     materialSlugs: [
@@ -51,3 +51,4 @@ export const learningRoutes: LearningRoute[] = [
     ],
   },
 ];
+

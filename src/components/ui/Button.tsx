@@ -37,13 +37,16 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     };
 
     const variantStyles = {
-      primary: "bg-[#171914] text-white hover:bg-[#32362c]",
-      secondary: "bg-[#f0f1e8] text-[#171914] hover:bg-[#e4e6d8]",
+      primary:
+        "bg-[#171914] text-white hover:bg-[#32362c] dark:bg-[#d8f06a] dark:text-[#171914] dark:hover:bg-[#c8e252]",
+      secondary:
+        "bg-[#f0f1e8] text-[#171914] hover:bg-[#e4e6d8] dark:bg-[#232820] dark:text-[#f2f4ec] dark:hover:bg-[#2d3429]",
       outline:
-        "border border-[#c9cbbf] bg-white text-[#171914] hover:border-[#171914] hover:bg-[#fbfbf8]",
-      accent: "bg-[#d8f06a] text-[#171914] hover:bg-[#cbf73f]",
-      ghost: "text-[#171914] hover:bg-black/5",
-      danger: "bg-[#ffe3e3] text-[#b31b1b] hover:bg-[#ffd1d1]",
+        "border border-[#c9cbbf] bg-white text-[#171914] hover:border-[#171914] hover:bg-[#fbfbf8] dark:border-[#333a2d] dark:bg-[#191c16] dark:text-[#f2f4ec] dark:hover:border-[#d8f06a]",
+      accent:
+        "bg-[#d8f06a] text-[#171914] hover:bg-[#cbf73f] dark:bg-[#d8f06a] dark:text-[#171914] dark:hover:bg-[#c8e252]",
+      ghost: "text-[#171914] hover:bg-black/5 dark:text-[#f2f4ec] dark:hover:bg-white/5",
+      danger: "bg-[#ffe3e3] text-[#b31b1b] hover:bg-[#ffd1d1] dark:bg-[#3d1919] dark:text-[#ff8f8f]",
     };
 
     const combinedClassName = cn(

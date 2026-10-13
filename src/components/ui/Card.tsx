@@ -26,13 +26,15 @@ export function Card({
   };
 
   const variantStyles = {
-    default: "bg-[#f0f1e8] text-[#171914]",
-    white: "bg-white text-[#171914] border border-[#eceee2] shadow-sm",
-    dark: "bg-[#171914] text-white",
-    lime: "bg-[#d8f06a] text-[#171914]",
-    sky: "bg-[#a7dcff] text-[#171914]",
-    peach: "bg-[#ffd6a5] text-[#171914]",
-    outline: "border-2 border-[#e0e2d5] bg-transparent text-[#171914]",
+    default: "bg-[#f0f1e8] text-[#171914] dark:bg-[#1f231b] dark:text-[#f2f4ec]",
+    white:
+      "bg-white text-[#171914] border border-[#eceee2] shadow-xs dark:bg-[#191c16] dark:text-[#f2f4ec] dark:border-[#2e3528]",
+    dark: "bg-[#171914] text-white dark:bg-[#1a1e17] dark:text-[#f2f4ec] dark:border dark:border-[#2e3528]",
+    lime: "bg-[#d8f06a] text-[#171914] dark:bg-[#d8f06a]/20 dark:text-[#f2f4ec] dark:border dark:border-[#d8f06a]/30",
+    sky: "bg-[#a7dcff] text-[#171914] dark:bg-[#38a3e5]/20 dark:text-[#f2f4ec] dark:border dark:border-[#38a3e5]/30",
+    peach:
+      "bg-[#ffd6a5] text-[#171914] dark:bg-[#ffbe7a]/20 dark:text-[#f2f4ec] dark:border dark:border-[#ffbe7a]/30",
+    outline: "border-2 border-[#e0e2d5] bg-transparent text-[#171914] dark:border-[#2e3528] dark:text-[#f2f4ec]",
   };
 
   const hoverStyles = hoverable

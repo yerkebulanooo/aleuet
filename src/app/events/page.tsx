@@ -5,9 +5,11 @@ import { MapPin, Users, ArrowRight, Sparkles } from "lucide-react";
 import { events } from "@/data/events";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { useLanguage } from "@/providers/language-provider";
 
 export default function EventsPage() {
-
+  const { t } = useLanguage();
+  const d = t.pages.events;
   const [filter, setFilter] = useState("all");
 
   const filteredEvents = events.filter((e) => {
@@ -22,23 +24,23 @@ export default function EventsPage() {
       <div>
         <div className="inline-flex items-center gap-2 rounded-full bg-[#a7dcff] px-3.5 py-1 text-xs font-black uppercase text-[#004f77]">
           <Sparkles className="h-3.5 w-3.5" />
-          <span>События и встречи</span>
+          <span>{d.badge}</span>
         </div>
         <h1 className="mt-3 text-3xl font-black text-[#171914] sm:text-5xl">
-          Практические воркшопы и митапы
+          {d.title}
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-[#5c6055] sm:text-base">
-          Живые встречи с экспертами, разбор ваших проектов и обратная связь в Алматы, Астане и онлайн.
+          {d.subtitle}
         </p>
       </div>
 
       {/* Filter buttons */}
       <div className="mt-8 flex flex-wrap gap-2">
         {[
-          { id: "all", label: "Все события" },
-          { id: "workshop", label: "Воркшопы" },
-          { id: "webinar", label: "Вебинары" },
-          { id: "offline", label: "Офлайн в Казахстане" },
+          { id: "all", label: d.filterAll },
+          { id: "workshop", label: d.filterWorkshops },
+          { id: "webinar", label: d.filterWebinars },
+          { id: "offline", label: d.filterOffline },
         ].map((f) => (
           <button
             key={f.id}
@@ -67,7 +69,7 @@ export default function EventsPage() {
                   {evt.typeLabel}
                 </Badge>
                 <span className="text-xs font-bold text-[#71766a]">
-                  Осталось {evt.spotsLeft} мест
+                  {d.spotsLabel} {evt.spotsLeft}
                 </span>
               </div>
 
@@ -90,7 +92,7 @@ export default function EventsPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Users className="h-3.5 w-3.5 text-[#71766a]" />
-                  <span>Спикер: {evt.speaker.name}</span>
+                  <span>{d.speakerLabel}: {evt.speaker.name}</span>
                 </div>
               </div>
             </div>
@@ -104,7 +106,7 @@ export default function EventsPage() {
                 icon={<ArrowRight className="h-4 w-4" />}
                 iconPosition="right"
               >
-                Подробнее и регистрация
+                {d.detailsBtn}
               </Button>
             </div>
           </div>

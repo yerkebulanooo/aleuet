@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { CheckCircle2, Send } from "lucide-react";
+import { CheckCircle2, Send, Info } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-
+import { useLanguage } from "@/providers/language-provider";
 
 export interface EventRegistrationModalProps {
   isOpen: boolean;
@@ -20,9 +20,10 @@ export function EventRegistrationModal({
   eventTitle,
   eventDate,
 }: EventRegistrationModalProps) {
-  const [name, setName] = useState("Айдос Сарсенбаев");
-  const [email, setEmail] = useState("aidos@example.com");
-  const [phone, setPhone] = useState("+7 (777) 123-45-67");
+  const { t } = useLanguage();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -32,6 +33,9 @@ export function EventRegistrationModal({
 
   const handleClose = () => {
     setIsSubmitted(false);
+    setName("");
+    setEmail("");
+    setPhone("");
     onClose();
   };
 
@@ -39,11 +43,11 @@ export function EventRegistrationModal({
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title={isSubmitted ? "Регистрация подтверждена!" : "Регистрация на событие"}
+      title={isSubmitted ? t.pages.events.interestSuccessTitle : t.pages.events.interestModalTitle}
       description={
         isSubmitted
-          ? `Вы успешно зарегистрированы на «${eventTitle}». Мы отправили билет и ссылку в календарь на почту ${email}.`
-          : `Заполните данные для участия в «${eventTitle}» (${eventDate}).`
+          ? `${t.pages.events.interestSuccessDesc} (${eventTitle})`
+          : `${t.pages.events.interestModalDesc} — ${eventTitle} (${eventDate})`
       }
     >
       {isSubmitted ? (
@@ -51,33 +55,40 @@ export function EventRegistrationModal({
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#d8f06a] text-[#171914]">
             <CheckCircle2 className="h-8 w-8" />
           </div>
-          <p className="mt-4 text-sm font-bold text-[#171914]">
-            Ждём вас на мероприятии!
-          </p>
+          <div className="mt-4 rounded-2xl bg-[#f0f1e8] dark:bg-[#232820] p-4 text-xs font-medium text-[#474c40] dark:text-[#c5cbbe]">
+            <p className="flex items-center justify-center gap-1.5 font-bold mb-1">
+              <Info className="h-4 w-4 text-[#3e5000] dark:text-[#d8f06a]" />
+              <span>{t.common.mvpBannerBadge}</span>
+            </p>
+            <p>Бұл демонстрациялық пилоттық сценарий. Нақты деректер сыртқы серверге жіберілмейді.</p>
+          </div>
           <div className="mt-6 flex justify-center">
             <Button variant="primary" size="md" onClick={handleClose}>
-              Понятно
+              {t.common.close}
             </Button>
           </div>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
-            label="Ваше имя и фамилия"
+            label="Аты-жөніңіз / Имя и фамилия"
+            placeholder="Есіміңізді жазыңыз..."
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
           />
           <Input
-            label="Email для билета"
+            label="Email"
             type="email"
+            placeholder="example@mail.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
           <Input
-            label="Номер телефона (WhatsApp)"
+            label="Телефон нөмірі / Номер WhatsApp"
             type="tel"
+            placeholder="+7 (___) ___-__-__"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             required
@@ -90,14 +101,15 @@ export function EventRegistrationModal({
               fullWidth
               icon={<Send className="h-4 w-4" />}
             >
-              Подтвердить регистрацию
+              {t.pages.events.expressInterestBtn}
             </Button>
           </div>
-          <p className="text-center text-[11px] text-[#71766a]">
-            Участие бесплатное. Количество мест в зале ограничено.
+          <p className="text-center text-[11px] text-[#71766a] dark:text-[#888e7f]">
+            Пилоттық қатысу тегін. Кесте бекітілгенде алдын ала хабарлаймыз.
           </p>
         </form>
       )}
     </Modal>
   );
 }
+
