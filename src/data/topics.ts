@@ -76,5 +76,20 @@ export const topics: Topic[] = [
     accentText: "text-[#135924]",
     materialsCount: 5,
   },
+  {
+    id: "opportunities",
+    slug: "opportunities",
+    title: "Мүмкіндіктер",
+    description: "Олимпиадалар, гранттар, жазғы мектептер, шетелде оқуға түсу және стипендиялар.",
+    titleKk: "Мүмкіндіктер",
+    titleRu: "Возможности",
+    titleEn: "Opportunities",
+    descriptionKk: "Олимпиадалар, гранттар, жазғы мектептер, шетелде оқуға түсу және стипендиялар.",
+    descriptionRu: "Олимпиады, гранты, летние школы, поступление за рубеж и стипендии.",
+    descriptionEn: "Olympiads, grants, summer schools, studying abroad, and scholarships.",
+    accentBg: "bg-[#ffc9de]",
+    accentText: "text-[#7a1f45]",
+    materialsCount: 0,
+  },
 ];
 
