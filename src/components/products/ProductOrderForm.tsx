@@ -4,22 +4,35 @@ import React, { useState } from "react";
 import { CheckCircle2, Send, ShieldCheck, Info } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useLanguage } from "@/providers/language-provider";
+import { LEAD_LIMITS, submitLead } from "@/lib/leads";
 
 export interface ProductOrderFormProps {
+  productSlug: string;
   productTitle: string;
   price: string;
 }
 
-export function ProductOrderForm({ productTitle, price }: ProductOrderFormProps) {
-  const { t } = useLanguage();
+export function ProductOrderForm({ productSlug, productTitle, price }: ProductOrderFormProps) {
+  const { t, locale } = useLanguage();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [note, setNote] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [failed, setFailed] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitted(true);
+    setSending(true);
+    setFailed(false);
+    try {
+      await submitLead({ kind: "product", targetSlug: productSlug, targetTitle: productTitle, name, phone, note, locale });
+      setIsSubmitted(true);
+    } catch {
+      setFailed(true);
+    } finally {
+      setSending(false);
+    }
   };
 
   if (isSubmitted) {
@@ -85,6 +98,7 @@ export function ProductOrderForm({ productTitle, price }: ProductOrderFormProps)
             placeholder="Есіміңізді жазыңыз..."
             value={name}
             onChange={(e) => setName(e.target.value)}
+            maxLength={LEAD_LIMITS.name}
             required
           />
         </div>
@@ -99,6 +113,7 @@ export function ProductOrderForm({ productTitle, price }: ProductOrderFormProps)
             placeholder="+7 (___) ___-__-__"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
+            maxLength={LEAD_LIMITS.phone}
             required
           />
         </div>
@@ -113,6 +128,7 @@ export function ProductOrderForm({ productTitle, price }: ProductOrderFormProps)
             placeholder="Зерттеу тақырыбыңыз немесе қызығушылығыңыз..."
             value={note}
             onChange={(e) => setNote(e.target.value)}
+            maxLength={LEAD_LIMITS.note}
           />
         </div>
 
@@ -121,10 +137,19 @@ export function ProductOrderForm({ productTitle, price }: ProductOrderFormProps)
           variant="accent"
           size="lg"
           fullWidth
+          disabled={sending}
           icon={<Send className="h-4 w-4" />}
         >
-          {t.pages.product.submitApplicationBtn}
+          {sending ? t.common.leadSending : t.pages.product.submitApplicationBtn}
         </Button>
+
+        {failed && (
+          <p role="alert" className="rounded-2xl bg-[#fff0ee] px-4 py-2 text-center text-xs font-bold text-[#a3241b]">
+            {t.common.leadError}
+          </p>
+        )}
+
+        <p className="text-center text-[11px] text-white/60">{t.common.leadPrivacy}</p>
 
         <div className="flex items-center justify-center gap-1.5 text-center text-[11px] text-white/60">
           <ShieldCheck className="h-3.5 w-3.5 text-[#d8f06a]" />

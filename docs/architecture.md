@@ -94,6 +94,20 @@ erDiagram
     string date
     array program
   }
+  LEADS {
+    string id PK "auto"
+    string kind "product|event"
+    string targetSlug
+    string targetTitle
+    string name
+    string phone
+    string email
+    string note
+    string locale
+    string uid "'' для гостя"
+    string status "new|contacted|closed"
+    timestamp createdAt
+  }
   CONTENT_META {
     string name PK "materials|events"
     bool initialized
@@ -109,6 +123,7 @@ erDiagram
 | `users/{uid}` | владелец или admin (list только admin) | только владелец, строгая схема полей, без ролей |
 | `materials`, `events` | все, если `published`; admin видит всё | только admin |
 | `contentMeta/{materials,events}` | все (get) | только admin |
+| `leads` | только admin | create — все (строгая схема, status=new); update только `status` — admin |
 | остальное | запрещено | запрещено |
 
 ## 5. Вход и создание профиля
@@ -138,7 +153,7 @@ graph LR
   S2 --> S3["3. Тест<br/>🟡 UI есть, данные статичны"]
   S3 --> S4["4. Прогресс и XP<br/>⬜ не сохраняется"]
   S4 --> S5["5. Рекомендация<br/>🟡 статичная nextMaterialSlug"]
-  S5 --> S6["6. Заявка / событие<br/>⬜ формы ничего не отправляют"]
+  S5 --> S6["6. Заявка / событие<br/>✅ сохраняются в leads"]
 ```
 
 Легенда: ✅ готово · 🟡 частично · ⬜ не сделано. Актуальный статус — в [ROADMAP.md](../ROADMAP.md).

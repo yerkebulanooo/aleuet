@@ -78,7 +78,7 @@ export const product = {
   orderFormTitle: "Join the Pilot Waitlist",
   orderFormDesc: "Leave your contact info for an initial consultation before enrollment.",
   orderSuccessTitle: "Application Received!",
-  orderSuccessDesc: "This is a prototype demonstration scenario. Enrollment opens following pilot selection.",
+  orderSuccessDesc: "A curator will contact you at the number you provided. Payment opens only after pilot selection.",
   submitApplicationBtn: "Submit Application",
   sendAnotherBtn: "Submit Another Request",
   disclaimer: "Pricing and structure are presented as product hypotheses under testing.",

@@ -17,6 +17,9 @@ export const common: CommonDict = {
   hypothesisBadge: "Баға гипотезасы",
   loading: "Жүктелуде...",
   close: "Жабу",
+  leadSending: "Жіберілуде…",
+  leadError: "Өтінімді жіберу мүмкін болмады. Интернетті тексеріп, қайталап көріңіз.",
+  leadPrivacy: "Деректеріңізді тек Aleuet командасы көреді және сізбен байланысу үшін ғана қолданады.",
 };
 
 export const nav: NavDict = {

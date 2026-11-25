@@ -17,6 +17,9 @@ export const common: CommonDict = {
   hypothesisBadge: "Pricing Hypothesis",
   loading: "Loading...",
   close: "Close",
+  leadSending: "Sending…",
+  leadError: "Could not send your request. Check your connection and try again.",
+  leadPrivacy: "Only the Aleuet team sees your details, and uses them only to contact you.",
 };
 
 export const nav: NavDict = {

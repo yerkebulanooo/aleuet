@@ -34,10 +34,10 @@ Aleuet — образовательная медиаплатформа на ка
 
 ## Данные: что реально, а что мок
 
-- **Firestore (реально):** `users/{uid}` (профиль: displayName, email, photoURL, grade, city, locale, createdAt, updatedAt; создаётся при первом входе в `auth-provider`), `materials/{slug}`, `events/{slug}`, `contentMeta/{materials|events}`.
+- **Firestore (реально):** `users/{uid}` (профиль: displayName, email, photoURL, grade, city, locale, createdAt, updatedAt; создаётся при первом входе в `auth-provider`), `materials/{slug}`, `events/{slug}`, `contentMeta/{materials|events}`, `leads/{auto-id}` (заявки на продукт и регистрации на событие: пишет кто угодно через `lib/leads.ts`, читает и меняет статус только admin во вкладке «Заявки» в `/admin`).
 - **Публикация контента:** запись видна публично только при `publicationStatus == "published"`. Если `contentMeta/<name>.initialized` нет, сайт показывает статический `data/*.ts`.
-- **Используют Firestore:** `catalog`, `materials/[slug]`, `events`, `events/[slug]` (через `usePublishedContent`), `profile`, `admin`.
-- **Пока только статика/мок:** products, topics, routes, assessments, прогресс/XP/достижения (`data/user.ts`), главная, `/learning`, `/complete`. Формы заявки на продукт и регистрации на событие **ничего не отправляют** (только `setIsSubmitted(true)`). Видеоплеер — `VideoPlayerMock`.
+- **Используют Firestore:** `catalog`, `materials/[slug]`, `events`, `events/[slug]` (через `usePublishedContent`), `profile`, `admin`, формы `ProductOrderForm` и `EventRegistrationModal` (→ `leads`).
+- **Пока только статика/мок:** products, topics, routes, assessments, прогресс/XP/достижения (`data/user.ts`), главная, `/learning`, `/complete`. Видеоплеер — `VideoPlayerMock`.
 - **Роли:** admin = Firebase custom claim `role: "admin"` (не поле профиля!). Проверка на клиенте через `getIdTokenResult`, в правилах через `request.auth.token.role`.
 - `firestore.rules` закрывает все прочие коллекции. **Любая новая коллекция требует правила** и деплоя.
 

@@ -6,9 +6,11 @@ import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { useLanguage } from "@/providers/language-provider";
+import { LEAD_LIMITS, submitLead } from "@/lib/leads";
 
 export interface EventRegistrationModalProps {
   isOpen: boolean;
+  eventSlug: string;
   onClose: () => void;
   eventTitle: string;
   eventDate: string;
@@ -17,22 +19,35 @@ export interface EventRegistrationModalProps {
 export function EventRegistrationModal({
   isOpen,
   onClose,
+  eventSlug,
   eventTitle,
   eventDate,
 }: EventRegistrationModalProps) {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [failed, setFailed] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitted(true);
+    setSending(true);
+    setFailed(false);
+    try {
+      await submitLead({ kind: "event", targetSlug: eventSlug, targetTitle: eventTitle, name, email, phone, locale });
+      setIsSubmitted(true);
+    } catch {
+      setFailed(true);
+    } finally {
+      setSending(false);
+    }
   };
 
   const handleClose = () => {
     setIsSubmitted(false);
+    setFailed(false);
     setName("");
     setEmail("");
     setPhone("");
@@ -60,7 +75,7 @@ export function EventRegistrationModal({
               <Info className="h-4 w-4 text-[#3e5000] dark:text-[#d8f06a]" />
               <span>{t.common.mvpBannerBadge}</span>
             </p>
-            <p>Бұл демонстрациялық пилоттық сценарий. Нақты деректер сыртқы серверге жіберілмейді.</p>
+            <p>{t.common.leadPrivacy}</p>
           </div>
           <div className="mt-6 flex justify-center">
             <Button variant="primary" size="md" onClick={handleClose}>
@@ -75,6 +90,7 @@ export function EventRegistrationModal({
             placeholder="Есіміңізді жазыңыз..."
             value={name}
             onChange={(e) => setName(e.target.value)}
+            maxLength={LEAD_LIMITS.name}
             required
           />
           <Input
@@ -83,6 +99,7 @@ export function EventRegistrationModal({
             placeholder="example@mail.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            maxLength={LEAD_LIMITS.email}
             required
           />
           <Input
@@ -91,6 +108,7 @@ export function EventRegistrationModal({
             placeholder="+7 (___) ___-__-__"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
+            maxLength={LEAD_LIMITS.phone}
             required
           />
           <div className="pt-2">
@@ -99,11 +117,17 @@ export function EventRegistrationModal({
               variant="accent"
               size="lg"
               fullWidth
+              disabled={sending}
               icon={<Send className="h-4 w-4" />}
             >
-              {t.pages.events.expressInterestBtn}
+              {sending ? t.common.leadSending : t.pages.events.expressInterestBtn}
             </Button>
           </div>
+          {failed && (
+            <p role="alert" className="rounded-xl bg-[#fff0ee] p-3 text-center text-xs font-bold text-[#a3241b]">
+              {t.common.leadError}
+            </p>
+          )}
           <p className="text-center text-[11px] text-[#71766a] dark:text-[#888e7f]">
             Пилоттық қатысу тегін. Кесте бекітілгенде алдын ала хабарлаймыз.
           </p>

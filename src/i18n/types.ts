@@ -15,6 +15,9 @@ export interface CommonDict {
   hypothesisBadge: string;
   loading: string;
   close: string;
+  leadSending: string;
+  leadError: string;
+  leadPrivacy: string;
 }
 
 export interface NavDict {

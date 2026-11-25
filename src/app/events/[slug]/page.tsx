@@ -110,6 +110,7 @@ export default function EventDetailPage() {
       <EventRegistrationModal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
+        eventSlug={event.slug}
         eventTitle={event.title}
         eventDate={event.date}
       />

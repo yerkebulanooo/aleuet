@@ -91,7 +91,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
         <div>
           <div className="sticky top-20 space-y-6">
-            <ProductOrderForm productTitle={product.title} price={product.pricing.price} />
+            <ProductOrderForm productSlug={product.slug} productTitle={product.title} price={product.pricing.price} />
             <div className="rounded-[2rem] border border-[#e2e4d8] bg-white p-6">
               <h4 className="text-sm font-black text-[#171914]">В стоимость включено:</h4>
               <ul className="mt-3 space-y-2 text-xs text-[#5c6055]">

@@ -65,7 +65,7 @@ export function HomePromo() {
         </section>
       )}
 
-      {evt && <EventRegistrationModal isOpen={isOpen} onClose={() => setIsOpen(false)} eventTitle={evt.title} eventDate={evt.date} />}
+      {evt && <EventRegistrationModal isOpen={isOpen} onClose={() => setIsOpen(false)} eventSlug={evt.slug} eventTitle={evt.title} eventDate={evt.date} />}
     </>
   );
 }
