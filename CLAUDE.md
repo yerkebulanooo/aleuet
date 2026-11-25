@@ -34,10 +34,10 @@ Aleuet — образовательная медиаплатформа на ка
 
 ## Данные: что реально, а что мок
 
-- **Firestore (реально):** `users/{uid}` (профиль: displayName, email, photoURL, grade, city, locale, createdAt, updatedAt; создаётся при первом входе в `auth-provider`), `materials/{slug}`, `events/{slug}`, `contentMeta/{materials|events}`, `leads/{auto-id}` (заявки на продукт и регистрации на событие: пишет кто угодно через `lib/leads.ts`, читает и меняет статус только admin во вкладке «Заявки» в `/admin`).
+- **Firestore (реально):** `users/{uid}` (профиль: displayName, email, photoURL, grade, city, locale, createdAt, updatedAt; создаётся при первом входе в `auth-provider`), `materials/{slug}`, `events/{slug}`, `contentMeta/{materials|events}`, `users/{uid}/progress/{materialSlug}` и `users/{uid}/xp/{entryId}` (прогресс и XP-журнал, `lib/progress.ts`; у гостя то же в localStorage, переносится при входе), `leads/{auto-id}` (заявки на продукт и регистрации на событие: пишет кто угодно через `lib/leads.ts`, читает и меняет статус только admin во вкладке «Заявки» в `/admin`).
 - **Публикация контента:** запись видна публично только при `publicationStatus == "published"`. Если `contentMeta/<name>.initialized` нет, сайт показывает статический `data/*.ts`.
 - **Используют Firestore:** `catalog`, `materials/[slug]`, `events`, `events/[slug]` (через `usePublishedContent`), `profile`, `admin`, формы `ProductOrderForm` и `EventRegistrationModal` (→ `leads`).
-- **Пока только статика/мок:** products, topics, routes, assessments, прогресс/XP/достижения (`data/user.ts`), главная, `/learning`, `/complete`. Видеоплеер — `VideoPlayerMock`.
+- **Пока только статика/мок:** products, topics, routes, assessments, достижения и streak (`data/user.ts`), главная и шапка (`getUserProfile`), `/complete`. Видео: `YouTubePlayer`, если у материала `video.provider = "youtube"` и `videoId`, иначе `VideoPlayerMock`.
 - **Роли:** admin = Firebase custom claim `role: "admin"` (не поле профиля!). Проверка на клиенте через `getIdTokenResult`, в правилах через `request.auth.token.role`.
 - `firestore.rules` закрывает все прочие коллекции. **Любая новая коллекция требует правила** и деплоя.
 

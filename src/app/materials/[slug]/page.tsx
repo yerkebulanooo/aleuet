@@ -10,6 +10,9 @@ import { topics } from "@/data/topics";
 import { products } from "@/data/products";
 import { events } from "@/data/events";
 import { VideoPlayerMock } from "@/components/materials/VideoPlayerMock";
+import { YouTubePlayer } from "@/components/materials/YouTubePlayer";
+import { hasRealVideo } from "@/lib/video";
+import { useMaterialProgress } from "@/lib/progress";
 import { LearningOutcomes } from "@/components/materials/LearningOutcomes";
 import { ResourcesList } from "@/components/materials/ResourcesList";
 import { Button } from "@/components/ui/Button";
@@ -22,6 +25,7 @@ export default function MaterialDetailPage() {
   const { items: visibleMaterials, ready: materialsReady } = usePublishedContent("materials", materials);
   const { items: visibleEvents } = usePublishedContent("events", events);
   const material = visibleMaterials.find((m) => m.slug === slug);
+  const { progress, ready: progressReady, savePosition, markWatched } = useMaterialProgress(slug);
 
   if (!material) {
     if (!materialsReady) return <div className="p-12 text-center">Жүктелуде…</div>;
@@ -55,7 +59,23 @@ export default function MaterialDetailPage() {
       </div>
 
       <div className="mt-8">
-        <VideoPlayerMock video={material.video} title={material.title} initialProgressSeconds={material.lastWatchedSeconds || 0} />
+        {hasRealVideo(material.video) ? (
+          progressReady ? (
+            <YouTubePlayer
+              videoId={material.video.videoId}
+              title={material.title}
+              chapters={material.video.chapters ?? []}
+              startSeconds={progress.positionSeconds}
+              completed={progress.watched}
+              onProgress={(position, duration) => void savePosition(position, duration)}
+              onWatched={() => void markWatched()}
+            />
+          ) : (
+            <div className="aspect-video w-full animate-pulse rounded-[2rem] bg-[#141612]" />
+          )
+        ) : (
+          <VideoPlayerMock video={material.video} title={material.title} initialProgressSeconds={material.lastWatchedSeconds || 0} />
+        )}
       </div>
 
       <div className="mt-12 grid gap-8 lg:grid-cols-[1.4fr_0.6fr]">

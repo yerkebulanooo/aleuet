@@ -1,10 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { BookOpen, Compass, CheckCircle2, Clock } from "lucide-react";
 import { materials } from "@/data/materials";
 import { learningRoutes } from "@/data/routes";
-import { currentUser } from "@/data/user";
+import { usePublishedContent } from "@/lib/content";
+import { useLearnerProgress, withProgress } from "@/lib/progress";
+import { ProgressSummary } from "@/components/learning/ProgressSummary";
+import type { ActivityHistoryItem } from "@/types";
 import { MaterialCard } from "@/components/materials/MaterialCard";
 import { RouteCard } from "@/components/learning/RouteCard";
 import { ActivityHistory } from "@/components/learning/ActivityHistory";
@@ -17,8 +20,25 @@ export default function LearningPage() {
   const d = t.pages.learning;
   const [activeTab, setActiveTab] = useState("current");
 
-  const inProgressMaterials = materials.filter((m) => m.status === "in_progress");
-  const completedMaterials = materials.filter((m) => m.status === "completed");
+  const { items: catalogMaterials } = usePublishedContent("materials", materials);
+  const { progress, xp } = useLearnerProgress();
+  const tracked = useMemo(() => withProgress(catalogMaterials, progress), [catalogMaterials, progress]);
+  const inProgressMaterials = tracked.filter((m) => m.status === "in_progress");
+  const completedMaterials = tracked.filter((m) => m.status === "completed");
+  const history: ActivityHistoryItem[] = useMemo(() => [...xp]
+    .sort((a, b) => (b.createdAt?.toMillis() ?? 0) - (a.createdAt?.toMillis() ?? 0))
+    .map((entry) => {
+      const material = catalogMaterials.find((m) => m.slug === entry.materialSlug);
+      return {
+        id: entry.id,
+        type: "passed_assessment",
+        title: material?.title ?? entry.materialSlug,
+        subtitle: material?.subtitle ?? "",
+        timestamp: entry.createdAt ? entry.createdAt.toDate().toLocaleDateString() : "",
+        xpEarned: entry.amount,
+        href: `/materials/${entry.materialSlug}`,
+      };
+    }), [catalogMaterials, xp]);
 
   const tabs = [
     { id: "current", label: d.tabInProgress, count: inProgressMaterials.length },
@@ -54,6 +74,10 @@ export default function LearningPage() {
             {d.findCourseBtn}
           </Button>
         </div>
+      </div>
+
+      <div className="mt-6">
+        <ProgressSummary showGuestNote />
       </div>
 
       {/* Navigation Tabs */}
@@ -136,7 +160,7 @@ export default function LearningPage() {
         {/* TAB 4: History */}
         {activeTab === "history" && (
           <div className="mx-auto max-w-3xl">
-            <ActivityHistory items={currentUser.activityHistory} />
+            <ActivityHistory items={history} />
           </div>
         )}
       </div>

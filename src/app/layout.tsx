@@ -7,6 +7,7 @@ import { MvpBanner } from "@/components/layout/MvpBanner";
 import { Footer } from "@/components/layout/Footer";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { AuthProvider } from "@/providers/auth-provider";
+import { GuestProgressMigrator } from "@/components/learning/GuestProgressMigrator";
 
 export const metadata: Metadata = {
   title: "Aleuet — қазақ тіліндегі білім беру медиаплатформасы",
@@ -25,6 +26,7 @@ export default function RootLayout({
         <ThemeProvider>
           <LanguageProvider>
             <AuthProvider>
+              <GuestProgressMigrator />
               <div>
                 <MvpBanner />
                 <Header />

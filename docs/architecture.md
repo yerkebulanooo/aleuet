@@ -112,6 +112,23 @@ erDiagram
     string name PK "materials|events"
     bool initialized
   }
+  USERS ||--o{ PROGRESS : "users/{uid}/progress/{slug}"
+  USERS ||--o{ XP : "users/{uid}/xp/{entryId}"
+  PROGRESS {
+    string materialSlug PK
+    string status "not_started|in_progress|completed"
+    int positionSeconds
+    int durationSeconds
+    bool watched ">=90% просмотра"
+    int assessmentScore "-1 = не сдавал"
+    bool assessmentPassed
+  }
+  XP {
+    string entryId PK "assessment-{slug}"
+    int amount "<=1000"
+    string reason
+    string materialSlug
+  }
   CONTENT_META ||--o{ MATERIALS : "включает Firestore-режим"
   CONTENT_META ||--o{ EVENTS : "включает Firestore-режим"
 ```
@@ -123,6 +140,8 @@ erDiagram
 | `users/{uid}` | владелец или admin (list только admin) | только владелец, строгая схема полей, без ролей |
 | `materials`, `events` | все, если `published`; admin видит всё | только admin |
 | `contentMeta/{materials,events}` | все (get) | только admin |
+| `users/{uid}/progress` | владелец или admin | владелец, строгая схема |
+| `users/{uid}/xp` | владелец или admin | только create владельцем, id = `assessment-{slug}`; изменять и удалять нельзя |
 | `leads` | только admin | create — все (строгая схема, status=new); update только `status` — admin |
 | остальное | запрещено | запрещено |
 
@@ -149,9 +168,9 @@ sequenceDiagram
 
 ```mermaid
 graph LR
-  S1["1. Открыл лекцию по ссылке<br/>✅ страница есть, ⬜ UTM"] --> S2["2. Смотрит видео<br/>⬜ плеер — мок, ⬜ позиция"]
-  S2 --> S3["3. Тест<br/>🟡 UI есть, данные статичны"]
-  S3 --> S4["4. Прогресс и XP<br/>⬜ не сохраняется"]
+  S1["1. Открыл лекцию по ссылке<br/>✅ страница есть, ⬜ UTM"] --> S2["2. Смотрит видео<br/>✅ YouTube-плеер, ✅ позиция"]
+  S2 --> S3["3. Тест<br/>✅ результат сохраняется, 🟡 вопросы в коде"]
+  S3 --> S4["4. Прогресс и XP<br/>✅ progress + xp-журнал"]
   S4 --> S5["5. Рекомендация<br/>🟡 статичная nextMaterialSlug"]
   S5 --> S6["6. Заявка / событие<br/>✅ сохраняются в leads"]
 ```

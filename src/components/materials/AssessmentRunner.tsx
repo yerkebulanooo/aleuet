@@ -6,8 +6,12 @@ import { Assessment } from "@/types";
 import { Button } from "@/components/ui/Button";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { cn } from "@/lib/utils";
+import { useMaterialProgress } from "@/lib/progress";
 
-export function AssessmentRunner({ assessment }: { assessment: Assessment }) {
+/** `materialSlug` is the lecture being checked; the assessment may be shared between lectures. */
+export function AssessmentRunner({ assessment, materialSlug }: { assessment: Assessment; materialSlug: string }) {
+  const { recordAssessment, signedIn } = useMaterialProgress(materialSlug);
+  const [xpGranted, setXpGranted] = useState<boolean | null>(null);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -54,23 +58,29 @@ export function AssessmentRunner({ assessment }: { assessment: Assessment }) {
           </div>
           <ProgressBar value={scorePct} size="md" color={isPassed ? "lime" : "orange"} />
         </div>
+        {isPassed && xpGranted === false && (
+          <p className="mt-4 text-xs font-bold text-[#71766a]">XP за этот материал уже начислен ранее.</p>
+        )}
+        {!signedIn && (
+          <p className="mt-4 text-xs text-[#71766a]">Прогресс сохранён на этом устройстве. <a href="/login" className="font-bold underline">Войдите</a>, чтобы он перенёсся в аккаунт.</p>
+        )}
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
           {isPassed ? (
             <Button
-              href={`/materials/${assessment.materialSlug}/complete`}
+              href={`/materials/${materialSlug}/complete`}
               size="lg"
               variant="accent"
               icon={<Sparkles className="h-5 w-5" />}
               iconPosition="right"
             >
-              Получить награду (+{assessment.xpReward} XP)
+              {xpGranted === false ? "Продолжить" : `Получить награду (+${assessment.xpReward} XP)`}
             </Button>
           ) : (
             <>
               <Button onClick={() => { setAnswers({}); setIsSubmitted(false); setCurrentIdx(0); }} size="lg" variant="primary">
                 Попробовать снова
               </Button>
-              <Button href={`/materials/${assessment.materialSlug}`} size="lg" variant="outline">
+              <Button href={`/materials/${materialSlug}`} size="lg" variant="outline">
                 К лекции
               </Button>
             </>
@@ -129,7 +139,14 @@ export function AssessmentRunner({ assessment }: { assessment: Assessment }) {
           size="md"
           onClick={() => {
             if (currentIdx < total - 1) setCurrentIdx((p) => p + 1);
-            else setIsSubmitted(true);
+            else {
+              const finalAnswers = answers;
+              const correct = assessment.questions.reduce((acc, q, idx) => q.options.find((o) => o.isCorrect)?.id === finalAnswers[idx] ? acc + 1 : acc, 0);
+              const score = Math.round((correct / total) * 100);
+              setIsSubmitted(true);
+              setXpGranted(null);
+              void recordAssessment(score, score >= assessment.passingScorePercent, assessment.xpReward).then(setXpGranted);
+            }
           }}
           disabled={!selectedOptId}
           icon={<ArrowRight className="h-4 w-4" />}

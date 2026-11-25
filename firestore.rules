@@ -44,6 +44,44 @@ service cloud.firestore {
         && request.resource.data.createdAt == resource.data.createdAt;
 
       allow delete: if signedIn() && request.auth.uid == uid;
+
+      // Learning progress per material. Mirrors MaterialProgress in src/lib/progress.ts.
+      match /progress/{materialSlug} {
+        allow get, list: if signedIn() && (request.auth.uid == uid || isAdmin());
+        allow create, update: if signedIn() && request.auth.uid == uid && validProgress(materialSlug);
+        allow delete: if signedIn() && request.auth.uid == uid;
+      }
+
+      // XP ledger: one immutable entry per rewarded action, so XP cannot be granted twice.
+      match /xp/{entryId} {
+        allow get, list: if signedIn() && (request.auth.uid == uid || isAdmin());
+        allow create: if signedIn() && request.auth.uid == uid && validXp(entryId);
+        allow update, delete: if false;
+      }
+    }
+
+    function validProgress(materialSlug) {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['materialSlug', 'status', 'positionSeconds', 'durationSeconds', 'watched', 'assessmentScore', 'assessmentPassed', 'updatedAt'])
+        && d.keys().hasAll(['materialSlug', 'status', 'positionSeconds', 'durationSeconds', 'watched', 'assessmentScore', 'assessmentPassed', 'updatedAt'])
+        && d.materialSlug == materialSlug
+        && d.status in ['not_started', 'in_progress', 'completed']
+        && d.positionSeconds is int && d.positionSeconds >= 0 && d.positionSeconds <= 86400
+        && d.durationSeconds is int && d.durationSeconds >= 0 && d.durationSeconds <= 86400
+        && d.watched is bool
+        && d.assessmentScore is int && d.assessmentScore >= -1 && d.assessmentScore <= 100
+        && d.assessmentPassed is bool
+        && d.updatedAt == request.time;
+    }
+
+    function validXp(entryId) {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['amount', 'reason', 'materialSlug', 'createdAt'])
+        && d.keys().hasAll(['amount', 'reason', 'materialSlug', 'createdAt'])
+        && d.amount is int && d.amount >= 0 && d.amount <= 1000
+        && d.reason == 'assessment'
+        && entryId == 'assessment-' + d.materialSlug
+        && d.createdAt == request.time;
     }
 
     function validPublication(resourceId) {

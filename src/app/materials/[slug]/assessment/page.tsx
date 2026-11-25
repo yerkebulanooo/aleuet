@@ -36,7 +36,7 @@ export default async function AssessmentPage({ params }: PageProps) {
       </div>
 
       {/* Main Assessment Runner */}
-      <AssessmentRunner assessment={assessment} />
+      <AssessmentRunner assessment={assessment} materialSlug={material.slug} />
     </div>
   );
 }

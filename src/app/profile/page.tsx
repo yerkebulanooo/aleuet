@@ -13,6 +13,7 @@ import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { ThemeSwitcher } from "@/components/layout/ThemeSwitcher";
 import { Tabs } from "@/components/ui/Tabs";
 import { Button } from "@/components/ui/Button";
+import { ProgressSummary } from "@/components/learning/ProgressSummary";
 
 type ProfileFields = { displayName: string; grade: string; city: string };
 
@@ -147,7 +148,7 @@ export default function ProfilePage() {
       {profileSetupError && <p role="alert" className="mt-4 rounded-xl bg-[#fff0ee] p-3 text-sm text-[#a3241b] dark:bg-[#3d1919] dark:text-[#ffaaa3]">{copy.profileSetupError} ({profileSetupError})</p>}
       <div className="mt-6 border-b border-[#e2e4d8] dark:border-[#2e3528]"><Tabs tabs={tabs} activeTab={tab} onChange={setTab} variant="underline" /></div>
       <div className="mt-6">
-        {tab === "profile" && <div className="grid gap-4 md:grid-cols-2"><section className="rounded-2xl border border-[#e2e4d8] bg-white p-5 dark:border-[#2e3528] dark:bg-[#191c16]"><h2 className="font-black">{copy.overview}</h2><p className="mt-3 text-sm text-[#5c6055] dark:text-[#9ea594]">{copy.empty}</p><Link href="/catalog" className="mt-5 inline-flex rounded-full bg-[#d8f06a] px-4 py-2 text-sm font-bold text-[#171914]">{copy.catalog}</Link></section><form onSubmit={saveProfile} className="space-y-4 rounded-2xl border border-[#e2e4d8] bg-white p-5 dark:border-[#2e3528] dark:bg-[#191c16]">
+        {tab === "profile" && <div className="grid gap-4 md:grid-cols-2"><section className="rounded-2xl border border-[#e2e4d8] bg-white p-5 dark:border-[#2e3528] dark:bg-[#191c16]"><h2 className="font-black">{copy.overview}</h2><div className="mt-4"><ProgressSummary /></div><Link href="/catalog" className="mt-5 inline-flex rounded-full bg-[#d8f06a] px-4 py-2 text-sm font-bold text-[#171914]">{copy.catalog}</Link></section><form onSubmit={saveProfile} className="space-y-4 rounded-2xl border border-[#e2e4d8] bg-white p-5 dark:border-[#2e3528] dark:bg-[#191c16]">
           <label className="block text-sm font-bold">{copy.email}<input readOnly value={user.email ?? ""} className="mt-1.5 w-full rounded-xl border border-[#d8dacb] bg-[#f7f7f2] px-4 py-3 font-normal text-[#71766a] dark:border-[#394131] dark:bg-[#11130f]" /></label>
           {([["displayName", copy.name], ["grade", copy.grade], ["city", copy.city]] as const).map(([key, label]) => <label key={key} className="block text-sm font-bold">{label}<input maxLength={key === "city" ? 80 : 60} value={fields[key]} onChange={(event) => setFields((current) => ({ ...current, [key]: event.target.value }))} className="mt-1.5 w-full rounded-xl border border-[#d8dacb] bg-transparent px-4 py-3 font-normal outline-none focus:border-[#7d941b] dark:border-[#394131]" /></label>)}
           {error && <p role="alert" className="rounded-xl bg-[#fff0ee] p-3 text-sm text-[#a3241b] dark:bg-[#3d1919] dark:text-[#ffaaa3]">{error}</p>}{saved && <p role="status" className="text-sm font-bold text-[#4d6300] dark:text-[#d8f06a]">{copy.saved}</p>}

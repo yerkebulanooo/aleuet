@@ -15,6 +15,14 @@ export function ActivityHistory({ items }: ActivityHistoryProps) {
     earned_achievement: <Award className="h-4 w-4 text-[#994400]" />,
   };
 
+  if (!items.length) {
+    return (
+      <p className="rounded-2xl border border-dashed border-[#e2e4d8] p-8 text-center text-sm text-[#71766a] dark:border-[#2e3528]">
+        Әзірге белсенділік жоқ · Пока нет активности · No activity yet
+      </p>
+    );
+  }
+
   return (
     <div className="space-y-3">
       {items.map((item) => (
