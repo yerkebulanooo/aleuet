@@ -32,7 +32,12 @@ export interface VideoChapter {
   timestamp: number; // in seconds
 }
 
+export type VideoProvider = "youtube";
+
 export interface VideoAsset {
+  /** Hosting provider. Missing provider/videoId means the lecture is not uploaded yet (demo player is shown). */
+  provider?: VideoProvider;
+  videoId?: string;
   durationSeconds: number;
   chapters: VideoChapter[];
   previewText?: string;
